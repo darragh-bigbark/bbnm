@@ -1,6 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import RichTextEditor from "@/components/RichTextEditor";
 
 type PostData = {
@@ -29,6 +30,194 @@ function localSlugify(text: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+function ImageUpload({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (url: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleFile(file: File) {
+    if (!file.type.startsWith("image/")) {
+      setError("Only image files are allowed.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image must be under 5MB.");
+      return;
+    }
+
+    setError("");
+    setUploading(true);
+
+    const fd = new FormData();
+    fd.append("file", file);
+
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    setUploading(false);
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error || "Upload failed.");
+      return;
+    }
+
+    const { url } = await res.json();
+    onChange(url);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  }
+
+  return (
+    <div>
+      {value ? (
+        /* Preview */
+        <div
+          style={{
+            position: "relative",
+            borderRadius: "0.75rem",
+            overflow: "hidden",
+            border: "1px solid var(--border)",
+            background: "#f9fafb",
+          }}
+        >
+          <Image
+            src={value}
+            alt="Cover preview"
+            width={800}
+            height={400}
+            style={{ width: "100%", height: "220px", objectFit: "cover", display: "block" }}
+            unoptimized
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "0.6rem",
+              right: "0.6rem",
+              display: "flex",
+              gap: "0.4rem",
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              style={{
+                background: "rgba(255,255,255,0.92)",
+                border: "1px solid var(--border)",
+                borderRadius: "0.375rem",
+                padding: "0.3rem 0.7rem",
+                fontSize: "0.78rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                color: "var(--navy)",
+              }}
+            >
+              Replace
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              style={{
+                background: "rgba(220,38,38,0.9)",
+                border: "none",
+                borderRadius: "0.375rem",
+                padding: "0.3rem 0.7rem",
+                fontSize: "0.78rem",
+                fontWeight: 700,
+                cursor: "pointer",
+                color: "#fff",
+              }}
+            >
+              Remove
+            </button>
+          </div>
+          {uploading && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "rgba(255,255,255,0.75)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "0.9rem",
+                fontWeight: 700,
+                color: "var(--navy)",
+              }}
+            >
+              Uploading…
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Drop zone */
+        <div
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+          onClick={() => inputRef.current?.click()}
+          style={{
+            border: "2px dashed var(--border)",
+            borderRadius: "0.75rem",
+            padding: "2.5rem 1.5rem",
+            textAlign: "center",
+            cursor: "pointer",
+            background: "#fafafa",
+            transition: "border-color 0.2s, background 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLDivElement).style.borderColor = "var(--gold)";
+            (e.currentTarget as HTMLDivElement).style.background = "#fef9f0";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border)";
+            (e.currentTarget as HTMLDivElement).style.background = "#fafafa";
+          }}
+        >
+          {uploading ? (
+            <p style={{ color: "var(--navy)", fontWeight: 700 }}>Uploading…</p>
+          ) : (
+            <>
+              <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🖼️</div>
+              <p style={{ fontWeight: 700, color: "var(--navy)", marginBottom: "0.25rem" }}>
+                Click to upload or drag &amp; drop
+              </p>
+              <p style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
+                PNG, JPG, WebP — max 5MB
+              </p>
+            </>
+          )}
+        </div>
+      )}
+
+      {error && (
+        <p className="mt-1 text-xs" style={{ color: "#dc2626" }}>
+          {error}
+        </p>
+      )}
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFile(file);
+          e.target.value = "";
+        }}
+      />
+    </div>
+  );
+}
+
 export default function PostEditor({ initial }: { initial?: Partial<PostData> & { id?: string } }) {
   const router = useRouter();
   const isEdit = !!initial?.id;
@@ -53,7 +242,6 @@ export default function PostEditor({ initial }: { initial?: Partial<PostData> & 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Auto-generate slug from title in create mode
   useEffect(() => {
     if (!slugLocked) {
       setForm((f) => ({ ...f, slug: localSlugify(f.title) }));
@@ -184,15 +372,10 @@ export default function PostEditor({ initial }: { initial?: Partial<PostData> & 
         />
       </div>
 
-      {/* Cover image */}
+      {/* Cover image upload */}
       <div className="form-group">
-        <label>Cover Image URL</label>
-        <input
-          type="text"
-          value={form.imageUrl}
-          onChange={(e) => set("imageUrl", e.target.value)}
-          placeholder="https://…"
-        />
+        <label>Cover Image</label>
+        <ImageUpload value={form.imageUrl} onChange={(url) => set("imageUrl", url)} />
       </div>
 
       {/* Content */}
@@ -202,8 +385,8 @@ export default function PostEditor({ initial }: { initial?: Partial<PostData> & 
         </label>
         {form.type === "live" && (
           <p className="mb-2 text-xs" style={{ color: "var(--muted)" }}>
-            This is the opening text shown above the live entries. Add timestamped live updates from
-            the edit page after saving.
+            This is the opening text shown above the live entries. Add timestamped live updates
+            from the edit page after saving.
           </p>
         )}
         <RichTextEditor content={form.content} onChange={(html) => set("content", html)} />

@@ -21,18 +21,21 @@ const TYPE_ACCENT: Record<string, string> = {
   news: "#1d4ed8",
   press_release: "#d97706",
   event: "#16a34a",
+  live: "#dc2626",
 };
 
 const TYPE_PLACEHOLDER: Record<string, { from: string; to: string }> = {
   news: { from: "#1e3a8a", to: "#3b82f6" },
   press_release: { from: "#78350f", to: "#f59e0b" },
   event: { from: "#14532d", to: "#22c55e" },
+  live: { from: "#7f1d1d", to: "#ef4444" },
 };
 
 export default function PostCard({ post }: { post: Post }) {
   const date = post.publishedAt || post.createdAt;
   const accent = TYPE_ACCENT[post.type] ?? "var(--gold)";
   const ph = TYPE_PLACEHOLDER[post.type] ?? { from: "#1b3a6b", to: "#3b5ea6" };
+  const isLive = post.type === "live";
 
   return (
     <Link href={`/posts/${post.slug}`} className="no-underline block h-full group">
@@ -60,6 +63,40 @@ export default function PostCard({ post }: { post: Post }) {
                 <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Z" />
                 <path d="M18 14h-8" /><path d="M15 18h-5" /><path d="M10 6h8v4h-8V6Z" />
               </svg>
+            </div>
+          )}
+
+          {/* Live badge overlay */}
+          {isLive && (
+            <div
+              style={{
+                position: "absolute",
+                top: "0.5rem",
+                left: "0.5rem",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.3rem",
+                background: "#dc2626",
+                color: "#fff",
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                letterSpacing: "0.06em",
+                padding: "0.2rem 0.55rem",
+                borderRadius: "999px",
+                textTransform: "uppercase",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "5px",
+                  height: "5px",
+                  borderRadius: "50%",
+                  background: "#fff",
+                  animation: "cardLivePulse 1.5s infinite",
+                }}
+              />
+              Live
             </div>
           )}
         </div>
@@ -91,6 +128,13 @@ export default function PostCard({ post }: { post: Post }) {
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes cardLivePulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
+      `}</style>
     </Link>
   );
 }

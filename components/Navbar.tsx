@@ -69,6 +69,22 @@ function AboutDropdown({ mobile, onClose }: { mobile?: boolean; onClose?: () => 
   );
 }
 
+function LiveDot() {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        width: "7px",
+        height: "7px",
+        borderRadius: "50%",
+        background: "#ef4444",
+        flexShrink: 0,
+        animation: "navLivePulse 1.5s infinite",
+      }}
+    />
+  );
+}
+
 function ContentDropdown({ mobile, onClose }: { mobile?: boolean; onClose?: () => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -82,17 +98,24 @@ function ContentDropdown({ mobile, onClose }: { mobile?: boolean; onClose?: () =
   }, []);
 
   const links = [
-    { href: "/news", label: "News", icon: "📰" },
-    { href: "/press-releases", label: "Press Releases", icon: "📣" },
-    { href: "/events", label: "Events", icon: "📅" },
+    { href: "/news", label: "News", icon: "📰", live: false },
+    { href: "/live-news", label: "Live News", icon: null, live: true },
+    { href: "/press-releases", label: "Press Releases", icon: "📣", live: false },
+    { href: "/events", label: "Events", icon: "📅", live: false },
   ];
 
   if (mobile) {
     return (
       <div className="flex flex-col gap-2 pl-3 border-l-2" style={{ borderColor: "var(--gold)" }}>
         {links.map((l) => (
-          <Link key={l.href} href={l.href} className="hover:text-yellow-300 flex items-center gap-2" onClick={onClose}>
-            <span>{l.icon}</span> {l.label}
+          <Link
+            key={l.href}
+            href={l.href}
+            className="hover:text-yellow-300 flex items-center gap-2"
+            onClick={onClose}
+          >
+            {l.live ? <LiveDot /> : <span>{l.icon}</span>}
+            {l.label}
           </Link>
         ))}
       </div>
@@ -113,7 +136,7 @@ function ContentDropdown({ mobile, onClose }: { mobile?: boolean; onClose?: () =
       {open && (
         <div
           className="absolute top-full left-0 mt-2 rounded-lg shadow-xl overflow-hidden z-50"
-          style={{ background: "#fff", border: "1px solid var(--border)", minWidth: "180px" }}
+          style={{ background: "#fff", border: "1px solid var(--border)", minWidth: "185px" }}
         >
           {links.map((l) => (
             <Link
@@ -125,12 +148,36 @@ function ContentDropdown({ mobile, onClose }: { mobile?: boolean; onClose?: () =
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
               onClick={() => setOpen(false)}
             >
-              <span>{l.icon}</span>
+              {l.live ? <LiveDot /> : <span>{l.icon}</span>}
               {l.label}
+              {l.live && (
+                <span
+                  style={{
+                    marginLeft: "auto",
+                    background: "#fee2e2",
+                    color: "#dc2626",
+                    fontSize: "0.6rem",
+                    fontWeight: 800,
+                    letterSpacing: "0.05em",
+                    padding: "0.1rem 0.4rem",
+                    borderRadius: "999px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Live
+                </span>
+              )}
             </Link>
           ))}
         </div>
       )}
+
+      <style>{`
+        @keyframes navLivePulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.35; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -144,7 +191,7 @@ export default function Navbar() {
     <nav style={{ background: "var(--navy)" }} className="text-white sticky top-0 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4">
 
-        {/* Logo row — centred on desktop, with mobile hamburger on the right */}
+        {/* Logo row */}
         <div className="relative flex items-center justify-center h-16">
           <Link href="/" className="flex items-center no-underline">
             <Image
@@ -157,7 +204,6 @@ export default function Navbar() {
               unoptimized
             />
           </Link>
-          {/* Mobile hamburger — absolute so it doesn't shift the logo */}
           <button
             className="md:hidden absolute right-0 p-2 rounded bg-transparent border-none text-white cursor-pointer"
             onClick={() => setOpen(!open)}
@@ -173,7 +219,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Desktop nav + auth row */}
+        {/* Desktop nav */}
         <div className="hidden md:flex items-center justify-center relative border-t border-white/10 h-11">
           <div className="flex items-center gap-6 text-sm font-medium">
             <Link href="/" className="hover:text-yellow-300 transition-colors">Home</Link>
