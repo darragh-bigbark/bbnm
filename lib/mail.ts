@@ -71,6 +71,26 @@ export async function sendAccountApprovedEmail(email: string, name: string) {
   });
 }
 
+export async function sendPasswordResetEmail(email: string, name: string, token: string) {
+  const resetUrl = `${BASE_URL}/auth/reset-password?token=${token}`;
+  return sendEmail({
+    to: email,
+    subject: "Reset your password — Big Bark News & Media",
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #1a2a4a;">Reset Your Password</h2>
+        <p style="color: #555;">Hi ${name}, we received a request to reset the password for your Big Bark News &amp; Media account. Click the button below to choose a new one.</p>
+        <p style="margin: 24px 0;">
+          <a href="${resetUrl}" style="background: #1a2a4a; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Reset Password</a>
+        </p>
+        <p style="color: #666; font-size: 14px;">Or copy and paste this link:<br><a href="${resetUrl}">${resetUrl}</a></p>
+        <p style="color: #999; font-size: 12px;">This link expires in 1 hour. If you didn&apos;t request a password reset, you can safely ignore this email.</p>
+      </div>
+    `,
+    text: `Hi ${name},\n\nReset your Big Bark News & Media password here:\n\n${resetUrl}\n\nThis link expires in 1 hour. If you didn't request this, ignore this email.`,
+  });
+}
+
 export async function sendConfirmationEmail(email: string, token: string) {
   const confirmUrl = `${BASE_URL}/api/subscribe?action=confirm&token=${token}`;
   return sendEmail({

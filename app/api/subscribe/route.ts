@@ -29,29 +29,30 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  const BASE_URL = process.env.NEXTAUTH_URL || "https://bbnm.ie";
   const { searchParams } = new URL(req.url);
   const action = searchParams.get("action");
   const token = searchParams.get("token");
 
   if (!token) {
-    return NextResponse.redirect(new URL("/rss", req.url));
+    return NextResponse.redirect(`${BASE_URL}/rss`);
   }
 
   const subscriber = await prisma.subscriber.findUnique({ where: { token } });
 
   if (!subscriber) {
-    return NextResponse.redirect(new URL("/rss", req.url));
+    return NextResponse.redirect(`${BASE_URL}/rss`);
   }
 
   if (action === "confirm") {
     await prisma.subscriber.update({ where: { token }, data: { confirmed: true } });
-    return NextResponse.redirect(new URL("/rss?confirmed=1", req.url));
+    return NextResponse.redirect(`${BASE_URL}/rss?confirmed=1`);
   }
 
   if (action === "unsubscribe") {
     await prisma.subscriber.delete({ where: { token } });
-    return NextResponse.redirect(new URL("/rss?unsubscribed=1", req.url));
+    return NextResponse.redirect(`${BASE_URL}/rss?unsubscribed=1`);
   }
 
-  return NextResponse.redirect(new URL("/rss", req.url));
+  return NextResponse.redirect(`${BASE_URL}/rss`);
 }
