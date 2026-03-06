@@ -302,7 +302,7 @@ export default function WhoWeArePage() {
                     across podcast segments, media graphics, and digital content:
                   </p>
                   <div className="space-y-2">
-                    {["Bruno", "Roxy", "Milly"].map((name) => (
+                    {["Bruno", "Roxy"].map((name) => (
                       <div key={name} className="flex items-center gap-3">
                         <span style={{ color: "var(--gold)" }}>&#128062;</span>
                         <span className="font-semibold text-white">{name}</span>
