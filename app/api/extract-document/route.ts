@@ -46,7 +46,8 @@ export async function POST(req: NextRequest) {
     }
 
     if (fileName.endsWith(".pdf")) {
-      const { default: pdfParse } = await import("pdf-parse");
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const pdfParse: typeof import("pdf-parse") = require("pdf-parse");
       const data = await pdfParse(buffer);
 
       // Convert extracted plain text into HTML paragraphs
