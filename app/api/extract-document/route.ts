@@ -48,7 +48,6 @@ export async function POST(req: NextRequest) {
     if (fileName.endsWith(".pdf")) {
       const { PDFParse } = await import("pdf-parse");
       const parser = new PDFParse({ data: buffer });
-      await parser.load();
       const result = await parser.getText();
       const rawText: string = result.text;
 
