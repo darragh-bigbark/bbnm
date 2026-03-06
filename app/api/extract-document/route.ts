@@ -74,8 +74,9 @@ export async function POST(req: NextRequest) {
     );
   } catch (err) {
     console.error("Document extraction error:", err);
+    const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: "Failed to extract content from the document. Please check the file and try again." },
+      { error: `Extraction failed: ${message}` },
       { status: 500 }
     );
   }
