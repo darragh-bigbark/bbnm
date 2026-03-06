@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { sendAccountApprovedEmail } from "@/lib/mail";
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
@@ -26,7 +27,15 @@ export async function PATCH(
   if (body.password) data.password = await bcrypt.hash(body.password, 12);
   if (typeof body.approved === "boolean") data.approved = body.approved;
 
+  const wasApproved = typeof data.approved === "boolean" && data.approved;
+  const existingUser = wasApproved ? await prisma.user.findUnique({ where: { id } }) : null;
+
   const user = await prisma.user.update({ where: { id }, data });
+
+  if (wasApproved && existingUser && !existingUser.approved) {
+    await sendAccountApprovedEmail(user.email, user.name).catch(() => {});
+  }
+
   return NextResponse.json(user);
 }
 

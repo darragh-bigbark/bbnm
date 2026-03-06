@@ -13,9 +13,11 @@ model User {
   password     String
   organisation String
   orgType      String
-  role         String   @default("submitter")
-  approved     Boolean  @default(true)
-  createdAt    DateTime @default(now())
+  role             String   @default("submitter")
+  approved         Boolean  @default(true)
+  emailVerified    Boolean  @default(false)
+  emailVerifyToken String?  @unique
+  createdAt        DateTime @default(now())
   posts        Post[]
 }
 

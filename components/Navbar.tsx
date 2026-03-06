@@ -83,7 +83,7 @@ export default function Navbar() {
         <div className="relative flex items-center justify-center h-16">
           <Link href="/" className="flex items-center no-underline">
             <Image
-              src="/logo-bbnm.png"
+              src="/logo-trans.png"
               alt="Big Bark News & Media"
               width={130}
               height={73}

@@ -35,6 +35,8 @@ export async function POST(req: NextRequest) {
       organisation,
       orgType,
       role: role ?? "submitter",
+      approved: true,
+      emailVerified: true,
     },
   });
 

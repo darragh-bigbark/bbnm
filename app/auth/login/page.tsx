@@ -2,11 +2,15 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const emailVerified = searchParams.get("emailVerified");
+  const verifyError = searchParams.get("verifyError");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,7 +30,12 @@ export default function LoginPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError("Invalid email or password. Please try again.");
+      const msg = result.error;
+      if (msg.includes("verify your email") || msg.includes("pending approval")) {
+        setError(msg);
+      } else {
+        setError("Invalid email or password. Please try again.");
+      }
     } else {
       router.push("/submit");
     }
@@ -50,6 +59,17 @@ export default function LoginPage() {
             Access your organisation&apos;s account
           </p>
         </div>
+
+        {emailVerified && (
+          <div className="rounded-lg px-4 py-3 mb-6 text-sm text-center" style={{ background: "#dcfce7", color: "#166534" }}>
+            Email verified! Your account is now pending approval. We&apos;ll email you once it&apos;s approved.
+          </div>
+        )}
+        {verifyError && (
+          <div className="rounded-lg px-4 py-3 mb-6 text-sm text-center" style={{ background: "#fee2e2", color: "#991b1b" }}>
+            That verification link is invalid or has already been used.
+          </div>
+        )}
 
         {/* Card */}
         <div className="card p-8">

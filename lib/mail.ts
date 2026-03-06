@@ -32,6 +32,45 @@ export async function sendEmail({
   });
 }
 
+export async function sendUserVerificationEmail(email: string, name: string, token: string) {
+  const verifyUrl = `${BASE_URL}/api/verify-email?token=${token}`;
+  return sendEmail({
+    to: email,
+    subject: "Verify your email — Big Bark News & Media",
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #1a2a4a;">Verify Your Email Address</h2>
+        <p style="color: #555;">Hi ${name}, thanks for registering with Big Bark News &amp; Media. Please verify your email address by clicking the button below.</p>
+        <p style="margin: 24px 0;">
+          <a href="${verifyUrl}" style="background: #1a2a4a; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Verify Email Address</a>
+        </p>
+        <p style="color: #666; font-size: 14px;">Or copy and paste this link:<br><a href="${verifyUrl}">${verifyUrl}</a></p>
+        <p style="color: #999; font-size: 12px;">If you didn't create an account, you can safely ignore this email.</p>
+      </div>
+    `,
+    text: `Hi ${name},\n\nPlease verify your email address for Big Bark News & Media:\n\n${verifyUrl}\n\nIf you didn't create an account, ignore this email.`,
+  });
+}
+
+export async function sendAccountApprovedEmail(email: string, name: string) {
+  const loginUrl = `${BASE_URL}/auth/login`;
+  return sendEmail({
+    to: email,
+    subject: "Your account has been approved — Big Bark News & Media",
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #1a2a4a;">Your Account Has Been Approved</h2>
+        <p style="color: #555;">Hi ${name}, great news! Your Big Bark News &amp; Media account has been reviewed and approved. You can now sign in and start submitting news, press releases and events.</p>
+        <p style="margin: 24px 0;">
+          <a href="${loginUrl}" style="background: #1a2a4a; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Sign In Now</a>
+        </p>
+        <p style="color: #999; font-size: 12px;">If you have any questions, reply to this email and we'll be happy to help.</p>
+      </div>
+    `,
+    text: `Hi ${name},\n\nYour Big Bark News & Media account has been approved. Sign in here:\n\n${loginUrl}\n\nWelcome aboard!`,
+  });
+}
+
 export async function sendConfirmationEmail(email: string, token: string) {
   const confirmUrl = `${BASE_URL}/api/subscribe?action=confirm&token=${token}`;
   return sendEmail({

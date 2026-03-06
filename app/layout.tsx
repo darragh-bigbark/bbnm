@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div>
                   <div className="mb-3">
                     <Image
-                      src="/logo-bbnm.png"
+                      src="/logo-trans.png"
                       alt="Big Bark News & Media"
                       width={120}
                       height={67}

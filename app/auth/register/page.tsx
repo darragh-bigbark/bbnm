@@ -49,17 +49,16 @@ export default function RegisterPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: "var(--cream)" }}>
         <div className="w-full max-w-md text-center">
-          <div style={{ fontSize: "3rem" }} className="mb-4">🎉</div>
+          <div style={{ fontSize: "3rem" }} className="mb-4">📧</div>
           <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--navy)" }}>
-            Account Created!
+            Check Your Email
           </h1>
-          <p className="mb-6" style={{ color: "var(--muted)" }}>
-            Your organisation account has been registered. You can now sign in and start submitting
-            stories, press releases and events.
+          <p className="mb-3" style={{ color: "var(--muted)" }}>
+            We&apos;ve sent a verification link to your email address. Click the link to verify your account.
           </p>
-          <Link href="/auth/login" className="btn-primary">
-            Sign In Now
-          </Link>
+          <p className="text-sm" style={{ color: "var(--muted)" }}>
+            Once verified, your account will be reviewed by our team. You&apos;ll receive a second email when your account is approved and ready to use.
+          </p>
         </div>
       </div>
     );
