@@ -46,9 +46,8 @@ export async function POST(req: NextRequest) {
     }
 
     if (fileName.endsWith(".pdf")) {
-      // Import from the library file directly to avoid pdf-parse's test file side-effect
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require("pdf-parse/lib/pdf-parse.js");
+      const pdfParse = require("pdf-parse/dist/pdf-parse/cjs/index.cjs");
       const data = await pdfParse(buffer);
 
       // Convert extracted plain text into HTML paragraphs
