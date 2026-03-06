@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
@@ -18,7 +19,13 @@ export async function PATCH(
   }
   const { id } = await params;
   const body = await req.json();
-  const user = await prisma.user.update({ where: { id }, data: { role: body.role } });
+
+  const data: Record<string, string> = {};
+  if (body.role) data.role = body.role;
+  if (body.email) data.email = body.email;
+  if (body.password) data.password = await bcrypt.hash(body.password, 12);
+
+  const user = await prisma.user.update({ where: { id }, data });
   return NextResponse.json(user);
 }
 
