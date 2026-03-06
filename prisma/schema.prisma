@@ -32,9 +32,9 @@ model Subscriber {
 }
 
 model Post {
-  id           String    @id @default(cuid())
+  id           String      @id @default(cuid())
   title        String
-  slug         String    @unique
+  slug         String      @unique
   type         String
   summary      String
   content      String
@@ -45,10 +45,22 @@ model Post {
   contactEmail String?
   contactPhone String?
   websiteUrl   String?
-  status       String    @default("pending")
+  status       String      @default("pending")
   authorId     String
-  author       User      @relation(fields: [authorId], references: [id])
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  author       User        @relation(fields: [authorId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
   publishedAt  DateTime?
+  isLive       Boolean     @default(false)
+  liveEnded    Boolean     @default(false)
+  liveEntries  LiveEntry[]
+}
+
+model LiveEntry {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  heading   String?
+  content   String
+  createdAt DateTime @default(now())
 }

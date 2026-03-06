@@ -13,8 +13,13 @@
     "seed": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"CommonJS\"}' ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@marsidev/react-turnstile": "^1.4.2",
     "@prisma/adapter-better-sqlite3": "^7.4.2",
     "@prisma/client": "^7.4.2",
+    "@tiptap/extension-link": "^3.20.1",
+    "@tiptap/pm": "^3.20.1",
+    "@tiptap/react": "^3.20.1",
+    "@tiptap/starter-kit": "^3.20.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/rss": "^0.0.32",
     "bcryptjs": "^3.0.3",
@@ -23,13 +28,12 @@
     "form-data": "^4.0.5",
     "mailgun.js": "^12.7.0",
     "next": "16.1.6",
-    "@marsidev/react-turnstile": "^1.4.2",
-    "sharp": "^0.33.5",
     "next-auth": "^4.24.13",
     "prisma": "^7.4.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "rss": "^1.2.2"
+    "rss": "^1.2.2",
+    "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -41,6 +45,6 @@
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   }
 }

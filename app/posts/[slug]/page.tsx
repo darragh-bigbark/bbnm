@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { formatDate, POST_TYPE_LABELS } from "@/lib/utils";
+import LiveBlog from "@/components/LiveBlog";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -26,7 +27,10 @@ export default async function PostPage({ params }: Props) {
 
   const post = await prisma.post.findUnique({
     where: { slug },
-    include: { author: true },
+    include: {
+      author: true,
+      liveEntries: { orderBy: { createdAt: "desc" } },
+    },
   });
 
   if (!post || post.status !== "approved") {
@@ -34,12 +38,27 @@ export default async function PostPage({ params }: Props) {
   }
 
   const date = post.publishedAt || post.createdAt;
+  const isLive = post.type === "live";
+
+  const backHref =
+    post.type === "news" || post.type === "live"
+      ? "/news"
+      : post.type === "press_release"
+      ? "/press-releases"
+      : "/events";
+
+  const serialisedEntries = post.liveEntries.map((e) => ({
+    id: e.id,
+    heading: e.heading,
+    content: e.content,
+    createdAt: e.createdAt.toISOString(),
+  }));
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      {/* Back button */}
+      {/* Back */}
       <Link
-        href={post.type === "news" ? "/news" : post.type === "press_release" ? "/press-releases" : "/events"}
+        href={backHref}
         className="inline-flex items-center gap-1 text-sm font-semibold mb-8 no-underline"
         style={{ color: "var(--navy)" }}
       >
@@ -48,21 +67,58 @@ export default async function PostPage({ params }: Props) {
 
       {/* Badges */}
       <div className="flex items-center gap-2 mb-4 flex-wrap">
-        <span className={`badge badge-${post.type}`}>
-          {POST_TYPE_LABELS[post.type] || post.type}
-        </span>
+        {isLive && !post.liveEnded ? (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              background: "#fee2e2",
+              color: "#dc2626",
+              fontWeight: 800,
+              fontSize: "0.75rem",
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+              padding: "0.2rem 0.7rem",
+              borderRadius: "999px",
+              border: "1px solid #fca5a5",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                width: "7px",
+                height: "7px",
+                borderRadius: "50%",
+                background: "#dc2626",
+                animation: "livePulse 1.5s infinite",
+              }}
+            />
+            Live
+          </span>
+        ) : (
+          <span className={`badge badge-${post.type}`}>
+            {POST_TYPE_LABELS[post.type] || post.type}
+          </span>
+        )}
         <span className={`badge badge-${post.author.orgType}`}>
           {post.author.orgType === "charity" ? "Charity" : "Business"}
         </span>
       </div>
 
       {/* Title */}
-      <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight" style={{ color: "var(--navy)" }}>
+      <h1
+        className="text-3xl md:text-4xl font-bold mb-4 leading-tight"
+        style={{ color: "var(--navy)" }}
+      >
         {post.title}
       </h1>
 
       {/* Meta */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-8 text-sm" style={{ color: "var(--muted)" }}>
+      <div
+        className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-8 text-sm"
+        style={{ color: "var(--muted)" }}
+      >
         <span>Published {formatDate(date)}</span>
         <span>&bull;</span>
         <span>
@@ -77,7 +133,10 @@ export default async function PostPage({ params }: Props) {
           className="rounded-xl p-5 mb-8 border-l-4 flex flex-col gap-2"
           style={{ background: "#fef9e7", borderColor: "var(--gold)" }}
         >
-          <div className="font-bold text-base flex items-center gap-2" style={{ color: "var(--navy)" }}>
+          <div
+            className="font-bold text-base flex items-center gap-2"
+            style={{ color: "var(--navy)" }}
+          >
             <span>📅</span> Event Details
           </div>
           {post.eventDate && (
@@ -104,11 +163,22 @@ export default async function PostPage({ params }: Props) {
       <hr className="mb-8" style={{ borderColor: "var(--border)" }} />
 
       {/* Content */}
-      <div
-        className="prose max-w-none mb-10 leading-relaxed"
-        style={{ color: "var(--text, #1a1a1a)" }}
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
+      {post.content && post.content !== "<p></p>" && (
+        <div
+          className="prose max-w-none mb-10 leading-relaxed"
+          style={{ color: "var(--text, #1a1a1a)" }}
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
+      )}
+
+      {/* Live Blog entries */}
+      {isLive && (
+        <LiveBlog
+          postId={post.id}
+          liveEnded={post.liveEnded}
+          initialEntries={serialisedEntries}
+        />
+      )}
 
       {/* Contact info */}
       {(post.contactName || post.contactEmail || post.contactPhone) && (
@@ -116,7 +186,10 @@ export default async function PostPage({ params }: Props) {
           className="rounded-xl p-5 mb-6 border"
           style={{ background: "#f0f4ff", borderColor: "#c7d2fe" }}
         >
-          <div className="font-bold text-base flex items-center gap-2 mb-3" style={{ color: "var(--navy)" }}>
+          <div
+            className="font-bold text-base flex items-center gap-2 mb-3"
+            style={{ color: "var(--navy)" }}
+          >
             <span>📞</span> Contact Information
           </div>
           <div className="flex flex-col gap-1 text-sm" style={{ color: "var(--muted)" }}>
@@ -168,6 +241,13 @@ export default async function PostPage({ params }: Props) {
         Submitted by <span className="font-semibold">{post.author.name}</span> on behalf of{" "}
         <span className="font-semibold">{post.author.organisation}</span>
       </div>
+
+      <style>{`
+        @keyframes livePulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.85); }
+        }
+      `}</style>
     </div>
   );
 }

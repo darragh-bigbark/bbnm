@@ -184,6 +184,21 @@ export default function PostsTable({ posts }: { posts: Post[] }) {
 
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5 flex-wrap">
+                      <a
+                        href={`/admin/posts/${post.id}/edit`}
+                        style={{
+                          padding: "0.3rem 0.75rem",
+                          fontSize: "0.78rem",
+                          background: "var(--navy)",
+                          color: "#fff",
+                          borderRadius: "0.375rem",
+                          fontWeight: 600,
+                          textDecoration: "none",
+                          display: "inline-block",
+                        }}
+                      >
+                        Edit
+                      </a>
                       {post.status !== "approved" && (
                         <button
                           className="btn-success"

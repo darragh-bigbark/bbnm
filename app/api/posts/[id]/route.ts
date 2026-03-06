@@ -29,15 +29,44 @@ export async function PATCH(
   }
   const { id } = await params;
   const body = await req.json();
-  const post = await prisma.post.update({
-    where: { id },
-    data: {
-      ...body,
-      publishedAt: body.status === "approved" ? new Date() : undefined,
-    },
-  });
 
-  if (body.status === "approved") {
+  const {
+    title, slug, type, summary, content, imageUrl,
+    eventDate, eventVenue, contactName, contactEmail,
+    contactPhone, websiteUrl, status, isLive, liveEnded,
+  } = body;
+
+  // Build update data — only include fields that were sent
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: Record<string, any> = {};
+  if (title !== undefined) data.title = title;
+  if (slug !== undefined) data.slug = slug;
+  if (type !== undefined) data.type = type;
+  if (summary !== undefined) data.summary = summary;
+  if (content !== undefined) data.content = content;
+  if (imageUrl !== undefined) data.imageUrl = imageUrl || null;
+  if (eventDate !== undefined) data.eventDate = eventDate || null;
+  if (eventVenue !== undefined) data.eventVenue = eventVenue || null;
+  if (contactName !== undefined) data.contactName = contactName || null;
+  if (contactEmail !== undefined) data.contactEmail = contactEmail || null;
+  if (contactPhone !== undefined) data.contactPhone = contactPhone || null;
+  if (websiteUrl !== undefined) data.websiteUrl = websiteUrl || null;
+  if (isLive !== undefined) data.isLive = isLive;
+  if (liveEnded !== undefined) data.liveEnded = liveEnded;
+
+  if (status !== undefined) {
+    data.status = status;
+    // Set publishedAt when approving if not already set
+    if (status === "approved") {
+      const existing = await prisma.post.findUnique({ where: { id }, select: { publishedAt: true } });
+      if (!existing?.publishedAt) data.publishedAt = new Date();
+    }
+  }
+
+  const post = await prisma.post.update({ where: { id }, data });
+
+  // Send subscriber notification when newly approved
+  if (status === "approved") {
     const subscribers = await prisma.subscriber.findMany({ where: { confirmed: true } });
     if (subscribers.length > 0) {
       sendPostNotification(post, subscribers).catch(console.error);

@@ -19,6 +19,7 @@ export const POST_TYPE_LABELS: Record<string, string> = {
   news: "News",
   press_release: "Press Release",
   event: "Event",
+  live: "Live Blog",
 };
 
 export const ORG_TYPE_LABELS: Record<string, string> = {

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import PostsTable from "./PostsTable";
 
@@ -18,11 +19,19 @@ export default async function AdminPostsPage() {
 
   return (
     <div>
-      <div className="section-header mb-8">
-        <h1 className="text-3xl font-bold" style={{ color: "var(--navy)" }}>
-          Posts
-        </h1>
-        <p style={{ color: "var(--muted)" }}>{posts.length} total submissions</p>
+      <div
+        className="section-header mb-8"
+        style={{ display: "flex", alignItems: "center", gap: "1rem" }}
+      >
+        <div style={{ flex: 1 }}>
+          <h1 className="text-3xl font-bold" style={{ color: "var(--navy)" }}>
+            Posts
+          </h1>
+          <p style={{ color: "var(--muted)" }}>{posts.length} total submissions</p>
+        </div>
+        <Link href="/admin/posts/new" className="btn-primary">
+          + New Post
+        </Link>
       </div>
       <PostsTable posts={serialised} />
     </div>

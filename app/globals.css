@@ -94,6 +94,35 @@ body {
 .badge-pending { background: #fef3c7; color: #92400e; }
 .badge-approved { background: #dcfce7; color: #166534; }
 .badge-rejected { background: #fee2e2; color: #991b1b; }
+.badge-live { background: #fee2e2; color: #dc2626; }
+
+/* Rich text editor (Tiptap) */
+.ProseMirror { outline: none; min-height: 220px; }
+.ProseMirror p { margin-bottom: 0.85em; }
+.ProseMirror h2 { font-size: 1.45em; font-weight: 700; margin: 1em 0 0.4em; color: var(--navy); }
+.ProseMirror h3 { font-size: 1.2em; font-weight: 700; margin: 0.9em 0 0.35em; color: var(--navy); }
+.ProseMirror ul { list-style: disc; padding-left: 1.6em; margin-bottom: 0.85em; }
+.ProseMirror ol { list-style: decimal; padding-left: 1.6em; margin-bottom: 0.85em; }
+.ProseMirror li { margin-bottom: 0.25em; }
+.ProseMirror blockquote { border-left: 3px solid var(--gold); padding-left: 1em; color: var(--muted); margin: 1em 0; font-style: italic; }
+.ProseMirror hr { border: none; border-top: 1px solid var(--border); margin: 1.5em 0; }
+.ProseMirror a { color: var(--navy); text-decoration: underline; }
+.ProseMirror code { background: #f3f4f6; padding: 0.1em 0.35em; border-radius: 3px; font-family: monospace; font-size: 0.9em; }
+.ProseMirror pre { background: #1e293b; color: #e2e8f0; padding: 1em; border-radius: 0.5em; overflow-x: auto; margin-bottom: 0.85em; }
+.ProseMirror pre code { background: transparent; padding: 0; }
+
+/* Prose styles for public post display */
+.prose p { margin-bottom: 0.85em; }
+.prose h2 { font-size: 1.45em; font-weight: 700; margin: 1em 0 0.4em; color: var(--navy); }
+.prose h3 { font-size: 1.2em; font-weight: 700; margin: 0.9em 0 0.35em; color: var(--navy); }
+.prose ul { list-style: disc; padding-left: 1.6em; margin-bottom: 0.85em; }
+.prose ol { list-style: decimal; padding-left: 1.6em; margin-bottom: 0.85em; }
+.prose li { margin-bottom: 0.25em; }
+.prose blockquote { border-left: 3px solid var(--gold); padding-left: 1em; color: var(--muted); margin: 1em 0; font-style: italic; }
+.prose hr { border: none; border-top: 1px solid var(--border); margin: 1.5em 0; }
+.prose a { color: var(--navy); text-decoration: underline; }
+.prose code { background: #f3f4f6; padding: 0.1em 0.35em; border-radius: 3px; font-family: monospace; font-size: 0.9em; }
+.prose strong { font-weight: 700; color: var(--navy); }
 
 .section-header {
   border-left: 4px solid var(--gold);
