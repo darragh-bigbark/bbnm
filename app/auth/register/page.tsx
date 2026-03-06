@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -14,6 +15,8 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(undefined);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -22,7 +25,27 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (!turnstileToken) {
+      setError("Please complete the security check.");
+      return;
+    }
+
     setLoading(true);
+
+    const verify = await fetch("/api/verify-turnstile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: turnstileToken }),
+    });
+
+    if (!verify.ok) {
+      setError("Security check failed. Please try again.");
+      setTurnstileToken(null);
+      turnstileRef.current?.reset();
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/register", {
@@ -35,11 +58,15 @@ export default function RegisterPage() {
 
       if (!res.ok) {
         setError(data.error || "Registration failed. Please try again.");
+        setTurnstileToken(null);
+        turnstileRef.current?.reset();
       } else {
         setSuccess(true);
       }
     } catch {
       setError("An unexpected error occurred. Please try again.");
+      setTurnstileToken(null);
+      turnstileRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -153,6 +180,16 @@ export default function RegisterPage() {
                 <option value="charity">Charity / Non-profit</option>
                 <option value="business">Business / Commercial</option>
               </select>
+            </div>
+
+            <div className="mb-4">
+              <Turnstile
+                ref={turnstileRef}
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                onSuccess={(token) => setTurnstileToken(token)}
+                onExpire={() => setTurnstileToken(null)}
+                onError={() => setTurnstileToken(null)}
+              />
             </div>
 
             {error && (

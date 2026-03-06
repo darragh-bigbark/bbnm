@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import LatestStories from "@/components/LatestStories";
+import SubscribeForm from "@/components/SubscribeForm";
 
 export const dynamic = "force-dynamic";
 
@@ -152,48 +153,31 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* RSS / Subscribe callout */}
+      {/* Subscribe callout */}
       <section style={{ background: "var(--navy)" }} className="py-14 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <div
-            className="inline-flex items-center justify-center w-14 h-14 rounded-full mb-5"
-            style={{ background: "rgba(244,161,53,0.15)", border: "1px solid rgba(244,161,53,0.3)" }}
-          >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 11a9 9 0 0 1 9 9" />
-              <path d="M4 4a16 16 0 0 1 16 16" />
-              <circle cx="5" cy="19" r="1" />
-            </svg>
+        <div className="max-w-xl mx-auto">
+          <div className="text-center mb-8">
+            <div
+              className="inline-flex items-center justify-center w-14 h-14 rounded-full mb-5"
+              style={{ background: "rgba(244,161,53,0.15)", border: "1px solid rgba(244,161,53,0.3)" }}
+            >
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-3 text-white">
+              Stay in the Loop
+            </h2>
+            <p style={{ color: "rgba(255,255,255,0.6)" }}>
+              Journalists and media outlets can subscribe to our RSS feeds —{" "}
+              <Link href="/rss" className="underline" style={{ color: "var(--gold)" }}>
+                click here to subscribe to our RSS feeds
+              </Link>
+              .
+            </p>
           </div>
-          <h2 className="text-2xl font-bold mb-3 text-white">
-            Stay Informed via RSS
-          </h2>
-          <p className="mb-8" style={{ color: "rgba(255,255,255,0.6)" }}>
-            Journalists and media outlets can subscribe to our RSS feeds — choose all posts
-            or filter by charity or business organisations.
-          </p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <a
-              href="/api/rss"
-              className="btn-primary"
-            >
-              All Posts Feed
-            </a>
-            <a
-              href="/api/rss?org=charity"
-              className="btn-outline"
-              style={{ borderColor: "rgba(255,255,255,0.4)", color: "#fff" }}
-            >
-              Charity Feed
-            </a>
-            <a
-              href="/api/rss?org=business"
-              className="btn-outline"
-              style={{ borderColor: "rgba(255,255,255,0.4)", color: "#fff" }}
-            >
-              Business Feed
-            </a>
-          </div>
+          <SubscribeForm />
         </div>
       </section>
     </div>
