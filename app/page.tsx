@@ -94,34 +94,75 @@ export default async function HomePage() {
             priority
           />
         </div>
+      </section>
 
-        {/* CTA strip */}
-        <div style={{ background: "var(--navy)", borderTop: "3px solid var(--gold)" }} className="py-6 px-4">
-          <div className="max-w-4xl mx-auto flex flex-wrap gap-4 justify-center items-center">
-            <p className="text-white/80 text-sm font-medium hidden sm:block">
-              The canine industry&apos;s trusted source for news, press releases &amp; events
+      {/* Mission statement — directly under hero */}
+      <section style={{ background: "#fff", padding: "6rem 1.5rem" }}>
+        <div style={{ maxWidth: "920px", margin: "0 auto", textAlign: "center" }}>
+
+          {/* Label */}
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "0.75rem", marginBottom: "3rem" }}>
+            <div style={{ width: "40px", height: "1px", background: "var(--gold)" }} />
+            <span style={{ fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold)" }}>
+              Ireland&apos;s Central Canine Media Hub
+            </span>
+            <div style={{ width: "40px", height: "1px", background: "var(--gold)" }} />
+          </div>
+
+          {/* Main typographic statement */}
+          <div style={{ marginBottom: "3.5rem" }}>
+            <p style={{ fontSize: "clamp(1rem, 2.5vw, 1.15rem)", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", marginBottom: "0.6rem" }}>
+              Big Bark News &amp; Media
             </p>
-            <div className="flex gap-3 flex-wrap justify-center">
-              <Link href="/submit" className="btn-primary">Submit Your Story</Link>
-              <Link
-                href="/auth/register"
-                className="btn-outline"
-                style={{ borderColor: "rgba(255,255,255,0.4)", color: "#fff" }}
-              >
-                Register Your Organisation
-              </Link>
-            </div>
+            <p style={{ fontSize: "clamp(2.6rem, 7vw, 5.25rem)", fontWeight: 900, color: "var(--navy)", lineHeight: 1.05, letterSpacing: "-0.03em", marginBottom: "0.4rem" }}>
+              Powers the
+            </p>
+            <p style={{ fontSize: "clamp(2.6rem, 7vw, 5.25rem)", fontWeight: 900, color: "var(--gold)", lineHeight: 1.05, letterSpacing: "-0.03em", marginBottom: "0.4rem" }}>
+              Conversation
+            </p>
+            <p style={{ fontSize: "clamp(1.4rem, 3.5vw, 2.5rem)", fontWeight: 700, color: "var(--navy)", lineHeight: 1.2, letterSpacing: "-0.02em", opacity: 0.75 }}>
+              around dogs in Ireland
+            </p>
+          </div>
+
+          {/* Gold rule */}
+          <div style={{ width: "64px", height: "3px", background: "var(--gold)", margin: "0 auto 3.5rem", borderRadius: "2px" }} />
+
+          {/* Three pillars */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "2.5rem 3rem", textAlign: "left" }}>
+            {statementPhrases.map((p) => (
+              <div key={p.text}>
+                <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", borderRadius: "10px", background: "rgba(244,161,53,0.1)", color: "var(--gold)", marginBottom: "0.85rem" }}>
+                  {p.icon}
+                </div>
+                <p style={{ fontWeight: 700, fontSize: "1.05rem", color: "var(--navy)", lineHeight: 1.35 }}>
+                  {p.text}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* CTA strip */}
+      <div style={{ background: "var(--navy)", borderTop: "3px solid var(--gold)" }} className="py-6 px-4">
+        <div className="max-w-4xl mx-auto flex flex-wrap gap-4 justify-center items-center">
+          <p className="text-white/80 text-sm font-medium hidden sm:block">
+            The canine industry&apos;s trusted source for news, press releases &amp; events
+          </p>
+          <div className="flex gap-3 flex-wrap justify-center">
+            <Link href="/submit" className="btn-primary">Submit Your Story</Link>
+            <Link href="/auth/register" className="btn-outline" style={{ borderColor: "rgba(255,255,255,0.4)", color: "#fff" }}>
+              Register Your Organisation
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Category browse */}
       <section style={{ background: "var(--navy)" }} className="px-4 py-14">
         <div className="max-w-7xl mx-auto">
-          <h2
-            className="text-center text-sm font-bold tracking-widest uppercase mb-8"
-            style={{ color: "var(--gold)" }}
-          >
+          <h2 className="text-center text-sm font-bold tracking-widest uppercase mb-8" style={{ color: "var(--gold)" }}>
             Browse by Category
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -152,10 +193,7 @@ export default async function HomePage() {
           </>
         ) : (
           <div className="text-center py-20">
-            <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
-              style={{ background: "#f0f4ff" }}
-            >
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: "#f0f4ff" }}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" strokeWidth="1.5">
                 <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Z" />
               </svg>
@@ -171,10 +209,7 @@ export default async function HomePage() {
       <section style={{ background: "var(--navy)" }} className="py-14 px-4">
         <div className="max-w-xl mx-auto">
           <div className="text-center mb-8">
-            <div
-              className="inline-flex items-center justify-center w-14 h-14 rounded-full mb-5"
-              style={{ background: "rgba(244,161,53,0.15)", border: "1px solid rgba(244,161,53,0.3)" }}
-            >
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full mb-5" style={{ background: "rgba(244,161,53,0.15)", border: "1px solid rgba(244,161,53,0.3)" }}>
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                 <polyline points="22,6 12,13 2,6" />
@@ -190,141 +225,6 @@ export default async function HomePage() {
             </p>
           </div>
           <SubscribeForm />
-        </div>
-      </section>
-
-      {/* Mission statement — full-bleed editorial */}
-      <section
-        style={{ background: "#fff", padding: "7rem 1.5rem" }}
-      >
-        <div style={{ maxWidth: "920px", margin: "0 auto", textAlign: "center" }}>
-
-          {/* Label */}
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.75rem",
-              marginBottom: "3rem",
-            }}
-          >
-            <div style={{ width: "40px", height: "1px", background: "var(--gold)" }} />
-            <span
-              style={{
-                fontSize: "0.7rem",
-                fontWeight: 800,
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-                color: "var(--gold)",
-              }}
-            >
-              Ireland&apos;s Central Canine Media Hub
-            </span>
-            <div style={{ width: "40px", height: "1px", background: "var(--gold)" }} />
-          </div>
-
-          {/* Main typographic statement */}
-          <div style={{ marginBottom: "3.5rem" }}>
-            <p
-              style={{
-                fontSize: "clamp(1rem, 2.5vw, 1.15rem)",
-                fontWeight: 700,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                color: "var(--muted)",
-                marginBottom: "0.6rem",
-              }}
-            >
-              Big Bark News &amp; Media
-            </p>
-            <p
-              style={{
-                fontSize: "clamp(2.6rem, 7vw, 5.25rem)",
-                fontWeight: 900,
-                color: "var(--navy)",
-                lineHeight: 1.05,
-                letterSpacing: "-0.03em",
-                marginBottom: "0.4rem",
-              }}
-            >
-              Powers the
-            </p>
-            <p
-              style={{
-                fontSize: "clamp(2.6rem, 7vw, 5.25rem)",
-                fontWeight: 900,
-                color: "var(--gold)",
-                lineHeight: 1.05,
-                letterSpacing: "-0.03em",
-                marginBottom: "0.4rem",
-              }}
-            >
-              Conversation
-            </p>
-            <p
-              style={{
-                fontSize: "clamp(1.4rem, 3.5vw, 2.5rem)",
-                fontWeight: 700,
-                color: "var(--navy)",
-                lineHeight: 1.2,
-                letterSpacing: "-0.02em",
-                opacity: 0.75,
-              }}
-            >
-              around dogs in Ireland
-            </p>
-          </div>
-
-          {/* Gold rule */}
-          <div
-            style={{
-              width: "64px",
-              height: "3px",
-              background: "var(--gold)",
-              margin: "0 auto 3.5rem",
-              borderRadius: "2px",
-            }}
-          />
-
-          {/* Three pillars */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-              gap: "2.5rem 3rem",
-              textAlign: "left",
-            }}
-          >
-            {statementPhrases.map((p) => (
-              <div key={p.text}>
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "10px",
-                    background: "rgba(244,161,53,0.1)",
-                    color: "var(--gold)",
-                    marginBottom: "0.85rem",
-                  }}
-                >
-                  {p.icon}
-                </div>
-                <p
-                  style={{
-                    fontWeight: 700,
-                    fontSize: "1.05rem",
-                    color: "var(--navy)",
-                    lineHeight: 1.35,
-                  }}
-                >
-                  {p.text}
-                </p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
     </div>
