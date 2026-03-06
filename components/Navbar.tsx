@@ -83,7 +83,7 @@ export default function Navbar() {
         <div className="relative flex items-center justify-center h-16">
           <Link href="/" className="flex items-center no-underline">
             <Image
-              src="https://bbnm.ie/wp-content/uploads/2026/02/Untitled-design-8-300x168.png"
+              src="/logo-bbnm.png"
               alt="Big Bark News & Media"
               width={130}
               height={73}

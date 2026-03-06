@@ -19,7 +19,7 @@ export default function AboutPage() {
       <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
         <div className="flex-shrink-0">
           <Image
-            src="https://bbnm.ie/wp-content/uploads/2026/02/Untitled-design-8-300x168.png"
+            src="/logo-bbnm.png"
             alt="Big Bark News & Media"
             width={220}
             height={123}

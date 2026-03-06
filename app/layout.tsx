@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div>
                   <div className="mb-3">
                     <Image
-                      src="https://bbnm.ie/wp-content/uploads/2026/02/Untitled-design-8-300x168.png"
+                      src="/logo-bbnm.png"
                       alt="Big Bark News & Media"
                       width={120}
                       height={67}
