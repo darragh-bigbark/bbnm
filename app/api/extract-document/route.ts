@@ -46,12 +46,14 @@ export async function POST(req: NextRequest) {
     }
 
     if (fileName.endsWith(".pdf")) {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse: typeof import("pdf-parse") = require("pdf-parse");
-      const data = await pdfParse(buffer);
+      const { PDFParse } = await import("pdf-parse");
+      const parser = new PDFParse({ data: buffer });
+      await parser.load();
+      const result = await parser.getText();
+      const rawText: string = result.text;
 
       // Convert extracted plain text into HTML paragraphs
-      const content = data.text
+      const content = rawText
         .split(/\n{2,}/)
         .map((para: string) => para.replace(/\n/g, " ").trim())
         .filter((para: string) => para.length > 2)
@@ -59,7 +61,7 @@ export async function POST(req: NextRequest) {
         .join("\n");
 
       // Use the first non-empty line as a suggested title
-      const firstLine = data.text
+      const firstLine = rawText
         .split("\n")
         .map((l: string) => l.trim())
         .find((l: string) => l.length > 3 && l.length < 150);
