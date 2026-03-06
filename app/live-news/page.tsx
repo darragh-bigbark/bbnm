@@ -23,24 +23,22 @@ export default async function LiveNewsPage() {
     <div className="max-w-7xl mx-auto px-4 py-12">
       {/* Header */}
       <div className="section-header mb-8">
-        <div className="flex items-center gap-3 mb-1 flex-wrap">
-          <div className="flex items-center gap-2">
-            <span
-              style={{
-                display: "inline-block",
-                width: "10px",
-                height: "10px",
-                borderRadius: "50%",
-                background: "#dc2626",
-                boxShadow: "0 0 0 3px rgba(220,38,38,0.25)",
-                animation: "livePulse 1.5s infinite",
-                flexShrink: 0,
-              }}
-            />
-            <h1 className="text-3xl font-bold" style={{ color: "var(--navy)" }}>
-              Live News
-            </h1>
-          </div>
+        <div className="flex items-center gap-2 mb-1">
+          <span
+            style={{
+              display: "inline-block",
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              background: "#dc2626",
+              boxShadow: "0 0 0 3px rgba(220,38,38,0.25)",
+              animation: "livePulse 1.5s infinite",
+              flexShrink: 0,
+            }}
+          />
+          <h1 className="text-3xl font-bold" style={{ color: "var(--navy)" }}>
+            Live News
+          </h1>
         </div>
         <p style={{ color: "var(--muted)" }}>
           Breaking news and rolling coverage from across Ireland&apos;s canine community
@@ -58,22 +56,14 @@ export default async function LiveNewsPage() {
               <Link
                 key={post.id}
                 href={`/posts/${post.slug}`}
-                className="no-underline block group"
+                className="no-underline block"
               >
                 <div
-                  className="rounded-2xl border overflow-hidden transition-shadow"
+                  className="live-card"
                   style={{
-                    background: "#fff",
-                    borderColor: isActive ? "rgba(220,38,38,0.3)" : "var(--border)",
-                    borderLeft: isActive ? "4px solid #dc2626" : "4px solid var(--border)",
+                    borderLeft: `4px solid ${isActive ? "#dc2626" : "var(--border)"}`,
+                    border: `1px solid ${isActive ? "rgba(220,38,38,0.3)" : "var(--border)"}`,
                   }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLDivElement).style.boxShadow =
-                      "0 6px 24px rgba(0,0,0,0.09)")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLDivElement).style.boxShadow = "none")
-                  }
                 >
                   <div className="p-6">
                     {/* Status + meta */}
@@ -133,7 +123,7 @@ export default async function LiveNewsPage() {
 
                     {/* Title */}
                     <h2
-                      className="font-bold text-xl mb-2 leading-snug group-hover:underline"
+                      className="font-bold text-xl mb-2 leading-snug"
                       style={{ color: "var(--navy)" }}
                     >
                       {post.title}
@@ -177,25 +167,14 @@ export default async function LiveNewsPage() {
                               {latestEntry.heading}
                             </span>
                           ) : (
-                            <span
-                              dangerouslySetInnerHTML={{
-                                __html:
-                                  latestEntry.content
-                                    .replace(/<[^>]+>/g, " ")
-                                    .trim()
-                                    .slice(0, 120) + "…",
-                              }}
-                            />
+                            latestEntry.content.replace(/<[^>]+>/g, " ").trim().slice(0, 120) + "…"
                           )}
                         </p>
                       </div>
                     )}
 
-                    {/* Entry count */}
                     <div className="mt-3 text-xs font-semibold" style={{ color: "var(--muted)" }}>
-                      {post.liveEntries.length > 0
-                        ? `Latest of many updates →`
-                        : "Follow for live updates →"}
+                      Follow for live updates →
                     </div>
                   </div>
                 </div>
@@ -205,28 +184,7 @@ export default async function LiveNewsPage() {
         </div>
       ) : (
         <div className="text-center py-24">
-          <div
-            style={{
-              fontSize: "3rem",
-              marginBottom: "1rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-            }}
-          >
-            <span
-              style={{
-                display: "inline-block",
-                width: "14px",
-                height: "14px",
-                borderRadius: "50%",
-                background: "#dc2626",
-                opacity: 0.3,
-              }}
-            />
-            📡
-          </div>
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📡</div>
           <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--navy)" }}>
             No live blogs running right now
           </h2>

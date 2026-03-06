@@ -171,3 +171,11 @@ label {
   background: rgba(244,161,53,0.1);
   border-color: rgba(244,161,53,0.4);
 }
+
+.live-card {
+  background: #fff;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.live-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.09); }
