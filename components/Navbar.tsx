@@ -108,7 +108,7 @@ export default function Navbar() {
         </div>
 
         {/* Desktop nav + auth row */}
-        <div className="hidden md:flex items-center justify-between border-t border-white/10 h-11">
+        <div className="hidden md:flex items-center justify-center relative border-t border-white/10 h-11">
           <div className="flex items-center gap-6 text-sm font-medium">
             <Link href="/" className="hover:text-yellow-300 transition-colors">Home</Link>
             <Link href="/about" className="hover:text-yellow-300 transition-colors">About</Link>
@@ -118,7 +118,7 @@ export default function Navbar() {
             <Link href="/rss" className="hover:text-yellow-300 transition-colors">Subscribe</Link>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 absolute right-0">
             {session ? (
               <>
                 {user?.role === "admin" && (

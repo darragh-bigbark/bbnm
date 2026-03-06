@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -32,11 +32,13 @@ export default function SubmitPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/login");
-    }
+    if (status === "unauthenticated") router.push("/auth/login");
   }, [status, router]);
 
   function handleChange(
@@ -45,20 +47,60 @@ export default function SubmitPage() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
+  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setImageError("Please select an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setImageError("Image must be under 5MB.");
+      return;
+    }
+
+    setImageError("");
+    setImagePreview(URL.createObjectURL(file));
+    setImageUploading(true);
+
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (res.ok) {
+        setForm((prev) => ({ ...prev, imageUrl: data.url }));
+      } else {
+        setImageError(data.error ?? "Upload failed.");
+        setImagePreview(null);
+      }
+    } catch {
+      setImageError("Upload failed. Please try again.");
+      setImagePreview(null);
+    } finally {
+      setImageUploading(false);
+    }
+  }
+
+  function removeImage() {
+    setImagePreview(null);
+    setImageError("");
+    setForm((prev) => ({ ...prev, imageUrl: "" }));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       const res = await fetch("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error || "Submission failed. Please try again.");
       } else {
@@ -76,6 +118,8 @@ export default function SubmitPage() {
     setForm(INITIAL_FORM);
     setSuccess(false);
     setError("");
+    setImagePreview(null);
+    setImageError("");
   }
 
   if (status === "loading") {
@@ -91,7 +135,14 @@ export default function SubmitPage() {
   if (success) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <div style={{ fontSize: "3.5rem" }} className="mb-4">✅</div>
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+          style={{ background: "#dcfce7" }}
+        >
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
         <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--navy)" }}>
           Submission Received!
         </h1>
@@ -156,7 +207,10 @@ export default function SubmitPage() {
           {/* Summary */}
           <div className="form-group">
             <label htmlFor="summary">
-              Summary * <span style={{ color: "var(--muted)", fontWeight: 400 }}>({form.summary.length}/200)</span>
+              Summary *{" "}
+              <span style={{ color: "var(--muted)", fontWeight: 400 }}>
+                ({form.summary.length}/200)
+              </span>
             </label>
             <textarea
               id="summary"
@@ -175,7 +229,7 @@ export default function SubmitPage() {
             <label htmlFor="content">
               Full Content *{" "}
               <span style={{ color: "var(--muted)", fontWeight: 400 }}>
-                (you can use basic HTML: &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;a&gt;)
+                (HTML supported: &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;a&gt;)
               </span>
             </label>
             <textarea
@@ -183,13 +237,13 @@ export default function SubmitPage() {
               name="content"
               value={form.content}
               onChange={handleChange}
-              placeholder="Write your full content here. HTML is supported."
+              placeholder="Write your full content here."
               rows={10}
               required
             />
           </div>
 
-          {/* Event-specific fields */}
+          {/* Event fields */}
           {form.type === "event" && (
             <div
               className="rounded-xl p-5 mb-5 border-l-4"
@@ -224,17 +278,82 @@ export default function SubmitPage() {
             </div>
           )}
 
-          {/* Image URL */}
+          {/* Featured Image upload */}
           <div className="form-group">
-            <label htmlFor="imageUrl">Image URL <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional)</span></label>
+            <label>
+              Featured Image{" "}
+              <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional, max 5MB)</span>
+            </label>
+
+            {imagePreview ? (
+              <div className="relative rounded-xl overflow-hidden border" style={{ borderColor: "var(--border)" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full object-cover"
+                  style={{ maxHeight: "240px" }}
+                />
+                {imageUploading && (
+                  <div
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{ background: "rgba(0,0,0,0.45)" }}
+                  >
+                    <span className="text-white text-sm font-medium">Uploading…</span>
+                  </div>
+                )}
+                {!imageUploading && (
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center border-none cursor-pointer"
+                    style={{ background: "rgba(0,0,0,0.6)" }}
+                    aria-label="Remove image"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center py-10 gap-3 cursor-pointer bg-transparent transition-colors"
+                style={{ borderColor: "var(--border)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--gold)")}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+                <div className="text-center">
+                  <p className="text-sm font-medium" style={{ color: "var(--navy)" }}>
+                    Click to upload an image
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
+                    PNG, JPG, GIF, WebP — max 5MB
+                  </p>
+                </div>
+              </button>
+            )}
+
             <input
-              id="imageUrl"
-              name="imageUrl"
-              type="url"
-              value={form.imageUrl}
-              onChange={handleChange}
-              placeholder="https://example.com/image.jpg"
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+              style={{ display: "none" }}
             />
+
+            {imageError && (
+              <p className="text-sm mt-2" style={{ color: "#991b1b" }}>{imageError}</p>
+            )}
           </div>
 
           {/* Contact info */}
@@ -243,7 +362,8 @@ export default function SubmitPage() {
             style={{ background: "var(--cream)", borderColor: "var(--border)" }}
           >
             <div className="font-semibold mb-3 text-sm" style={{ color: "var(--navy)" }}>
-              Contact Information <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional — shown on the post)</span>
+              Contact Information{" "}
+              <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional — shown on the post)</span>
             </div>
             <div className="form-group">
               <label htmlFor="contactName">Contact Name</label>
@@ -268,21 +388,27 @@ export default function SubmitPage() {
               />
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label htmlFor="contactPhone">Contact Phone <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional)</span></label>
+              <label htmlFor="contactPhone">
+                Contact Phone{" "}
+                <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional)</span>
+              </label>
               <input
                 id="contactPhone"
                 name="contactPhone"
                 type="tel"
                 value={form.contactPhone}
                 onChange={handleChange}
-                placeholder="+44 7700 000000"
+                placeholder="+353 87 000 0000"
               />
             </div>
           </div>
 
           {/* Website URL */}
           <div className="form-group">
-            <label htmlFor="websiteUrl">Website URL <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional)</span></label>
+            <label htmlFor="websiteUrl">
+              Website URL{" "}
+              <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional)</span>
+            </label>
             <input
               id="websiteUrl"
               name="websiteUrl"
@@ -305,8 +431,8 @@ export default function SubmitPage() {
           <button
             type="submit"
             className="btn-primary w-full text-center"
-            disabled={loading}
-            style={{ opacity: loading ? 0.7 : 1, fontSize: "1rem" }}
+            disabled={loading || imageUploading}
+            style={{ opacity: loading || imageUploading ? 0.7 : 1, fontSize: "1rem" }}
           >
             {loading ? "Submitting…" : "Submit for Review"}
           </button>

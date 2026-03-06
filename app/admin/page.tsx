@@ -1,150 +1,180 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatDate, POST_TYPE_LABELS } from "@/lib/utils";
-import AdminActions from "./AdminActions";
+import { formatDate } from "@/lib/utils";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
-  const user = session?.user as { name?: string; email?: string; role?: string } | undefined;
+export default async function AdminDashboard() {
+  const [posts, users, subscribers] = await Promise.all([
+    prisma.post.findMany({
+      include: { author: { select: { name: true, organisation: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.user.findMany({ orderBy: { createdAt: "desc" } }),
+    prisma.subscriber.findMany({ orderBy: { createdAt: "desc" } }),
+  ]);
 
-  if (!session || user?.role !== "admin") {
-    redirect("/");
-  }
+  const pending = posts.filter((p) => p.status === "pending");
+  const approved = posts.filter((p) => p.status === "approved");
+  const confirmedSubs = subscribers.filter((s) => s.confirmed);
 
-  const posts = await prisma.post.findMany({
-    include: { author: { select: { name: true, organisation: true, orgType: true } } },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const total = posts.length;
-  const pending = posts.filter((p) => p.status === "pending").length;
-  const approved = posts.filter((p) => p.status === "approved").length;
-  const rejected = posts.filter((p) => p.status === "rejected").length;
+  const stats = [
+    {
+      label: "Total Posts",
+      value: posts.length,
+      sub: `${approved.length} published`,
+      bg: "#f0f4ff",
+      border: "#c7d2fe",
+      color: "var(--navy)",
+    },
+    {
+      label: "Pending Review",
+      value: pending.length,
+      sub: "need attention",
+      bg: "#fef3c7",
+      border: "#fde68a",
+      color: "#92400e",
+    },
+    {
+      label: "Registered Users",
+      value: users.length,
+      sub: `${users.filter((u) => u.role === "admin").length} admin(s)`,
+      bg: "#ede9fe",
+      border: "#ddd6fe",
+      color: "#5b21b6",
+    },
+    {
+      label: "Subscribers",
+      value: confirmedSubs.length,
+      sub: `${subscribers.length - confirmedSubs.length} unconfirmed`,
+      bg: "#dcfce7",
+      border: "#bbf7d0",
+      color: "#166534",
+    },
+  ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
+    <div>
       <div className="section-header mb-8">
         <h1 className="text-3xl font-bold" style={{ color: "var(--navy)" }}>
-          Admin Dashboard
+          Dashboard
         </h1>
-        <p style={{ color: "var(--muted)" }}>
-          Manage all submitted content
-        </p>
+        <p style={{ color: "var(--muted)" }}>Welcome back — here&apos;s what&apos;s happening.</p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-        {[
-          { label: "Total Posts", value: total, bg: "#f0f4ff", border: "#c7d2fe", color: "var(--navy)" },
-          { label: "Pending", value: pending, bg: "#fef3c7", border: "#fde68a", color: "#92400e" },
-          { label: "Approved", value: approved, bg: "#dcfce7", border: "#bbf7d0", color: "#166534" },
-          { label: "Rejected", value: rejected, bg: "#fee2e2", border: "#fecaca", color: "#991b1b" },
-        ].map((stat) => (
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        {stats.map((s) => (
           <div
-            key={stat.label}
-            className="rounded-xl p-4 border text-center"
-            style={{ background: stat.bg, borderColor: stat.border }}
+            key={s.label}
+            className="rounded-xl p-5 border"
+            style={{ background: s.bg, borderColor: s.border }}
           >
-            <div className="text-3xl font-bold" style={{ color: stat.color }}>
-              {stat.value}
+            <div className="text-4xl font-bold mb-1" style={{ color: s.color }}>
+              {s.value}
             </div>
-            <div className="text-sm font-medium mt-1" style={{ color: stat.color, opacity: 0.8 }}>
-              {stat.label}
+            <div className="text-sm font-semibold" style={{ color: s.color }}>
+              {s.label}
+            </div>
+            <div className="text-xs mt-1" style={{ color: s.color, opacity: 0.65 }}>
+              {s.sub}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Posts table */}
-      {posts.length === 0 ? (
-        <div className="text-center py-20" style={{ color: "var(--muted)" }}>
-          No posts yet.
-        </div>
-      ) : (
-        <div className="card overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr style={{ borderBottom: "2px solid var(--border)", background: "var(--cream)" }}>
-                {["Title", "Type", "Org Type", "Organisation", "Status", "Date", "Actions"].map(
-                  (h) => (
-                    <th
-                      key={h}
-                      className="text-left px-4 py-3 font-semibold"
-                      style={{ color: "var(--navy)", whiteSpace: "nowrap" }}
-                    >
-                      {h}
-                    </th>
-                  )
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {posts.map((post, i) => (
-                <tr
-                  key={post.id}
-                  style={{
-                    borderBottom: "1px solid var(--border)",
-                    background: i % 2 === 0 ? "#fff" : "var(--cream)",
-                  }}
-                >
-                  {/* Title */}
-                  <td className="px-4 py-3" style={{ maxWidth: "220px" }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Pending posts */}
+        <div className="bg-white rounded-xl border" style={{ borderColor: "var(--border)" }}>
+          <div
+            className="px-6 py-4 border-b flex items-center justify-between"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <h2 className="font-bold text-base" style={{ color: "var(--navy)" }}>
+              Needs Attention
+            </h2>
+            <Link
+              href="/admin/posts"
+              className="text-sm no-underline font-medium"
+              style={{ color: "var(--gold)" }}
+            >
+              View all →
+            </Link>
+          </div>
+          {pending.length === 0 ? (
+            <div className="px-6 py-10 text-sm text-center" style={{ color: "var(--muted)" }}>
+              No pending posts — you&apos;re all caught up!
+            </div>
+          ) : (
+            <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+              {pending.slice(0, 6).map((post) => (
+                <div key={post.id} className="px-6 py-4 flex items-start justify-between gap-4">
+                  <div className="min-w-0">
                     <a
                       href={`/posts/${post.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold no-underline leading-snug block"
-                      style={{ color: "var(--navy)", lineHeight: 1.3 }}
+                      className="font-medium text-sm no-underline block truncate"
+                      style={{ color: "var(--navy)" }}
                     >
-                      {post.title.length > 60 ? post.title.slice(0, 60) + "…" : post.title}
+                      {post.title}
                     </a>
-                  </td>
-
-                  {/* Type */}
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className={`badge badge-${post.type}`}>
-                      {POST_TYPE_LABELS[post.type] || post.type}
-                    </span>
-                  </td>
-
-                  {/* Org type */}
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className={`badge badge-${post.author.orgType}`}>
-                      {post.author.orgType === "charity" ? "Charity" : "Business"}
-                    </span>
-                  </td>
-
-                  {/* Organisation */}
-                  <td className="px-4 py-3" style={{ color: "var(--muted)", whiteSpace: "nowrap" }}>
-                    {post.author.organisation}
-                  </td>
-
-                  {/* Status */}
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span className={`badge badge-${post.status}`}>
-                      {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
-                    </span>
-                  </td>
-
-                  {/* Date */}
-                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: "var(--muted)" }}>
-                    {formatDate(post.createdAt)}
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-4 py-3">
-                    <AdminActions postId={post.id} status={post.status} />
-                  </td>
-                </tr>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                      {post.author.organisation} · {formatDate(post.createdAt)}
+                    </p>
+                  </div>
+                  <span className="badge badge-pending shrink-0">Pending</span>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Recent registrations */}
+        <div className="bg-white rounded-xl border" style={{ borderColor: "var(--border)" }}>
+          <div
+            className="px-6 py-4 border-b flex items-center justify-between"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <h2 className="font-bold text-base" style={{ color: "var(--navy)" }}>
+              Recent Registrations
+            </h2>
+            <Link
+              href="/admin/users"
+              className="text-sm no-underline font-medium"
+              style={{ color: "var(--gold)" }}
+            >
+              View all →
+            </Link>
+          </div>
+          {users.length === 0 ? (
+            <div className="px-6 py-10 text-sm text-center" style={{ color: "var(--muted)" }}>
+              No users yet.
+            </div>
+          ) : (
+            <div className="divide-y" style={{ borderColor: "var(--border)" }}>
+              {users.slice(0, 6).map((u) => (
+                <div key={u.id} className="px-6 py-4 flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm truncate" style={{ color: "var(--navy)" }}>
+                      {u.name}
+                    </p>
+                    <p className="text-xs truncate" style={{ color: "var(--muted)" }}>
+                      {u.organisation} · {formatDate(u.createdAt)}
+                    </p>
+                  </div>
+                  <span
+                    className={`badge shrink-0 ${u.role === "admin" ? "badge-event" : "badge-news"}`}
+                    style={{ fontSize: "0.7rem" }}
+                  >
+                    {u.role}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
