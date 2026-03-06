@@ -32,10 +32,18 @@ export default function SubmitPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Image upload state
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [imageError, setImageError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Document extraction state
+  const [docExtracting, setDocExtracting] = useState(false);
+  const [docExtracted, setDocExtracted] = useState<string | null>(null); // filename
+  const [docError, setDocError] = useState("");
+  const docInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/auth/login");
@@ -51,14 +59,8 @@ export default function SubmitPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setImageError("Please select an image file.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setImageError("Image must be under 5MB.");
-      return;
-    }
+    if (!file.type.startsWith("image/")) { setImageError("Please select an image file."); return; }
+    if (file.size > 5 * 1024 * 1024) { setImageError("Image must be under 5MB."); return; }
 
     setImageError("");
     setImagePreview(URL.createObjectURL(file));
@@ -88,6 +90,57 @@ export default function SubmitPage() {
     setImageError("");
     setForm((prev) => ({ ...prev, imageUrl: "" }));
     if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  async function handleDocumentChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const name = file.name.toLowerCase();
+    if (!name.endsWith(".docx") && !name.endsWith(".pdf")) {
+      setDocError("Only .docx and .pdf files are supported.");
+      return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      setDocError("File must be under 20MB.");
+      return;
+    }
+
+    setDocError("");
+    setDocExtracting(true);
+    setDocExtracted(null);
+
+    try {
+      const fd = new FormData();
+      fd.append("document", file);
+      const res = await fetch("/api/extract-document", { method: "POST", body: fd });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setDocError(data.error || "Extraction failed. Please try again.");
+        return;
+      }
+
+      // Populate content field
+      setForm((prev) => ({
+        ...prev,
+        content: data.content,
+        // Pre-fill title only if it's currently empty and we have a suggestion
+        title: prev.title === "" && data.suggestedTitle ? data.suggestedTitle : prev.title,
+      }));
+      setDocExtracted(file.name);
+    } catch {
+      setDocError("Failed to extract content. Please try again.");
+    } finally {
+      setDocExtracting(false);
+      if (docInputRef.current) docInputRef.current.value = "";
+    }
+  }
+
+  function clearDocument() {
+    setDocExtracted(null);
+    setDocError("");
+    setForm((prev) => ({ ...prev, content: "" }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -120,6 +173,8 @@ export default function SubmitPage() {
     setError("");
     setImagePreview(null);
     setImageError("");
+    setDocExtracted(null);
+    setDocError("");
   }
 
   if (status === "loading") {
@@ -152,9 +207,7 @@ export default function SubmitPage() {
         <p className="text-sm mb-8" style={{ color: "var(--muted)" }}>
           You&apos;ll be able to see your submissions in the dashboard once approved.
         </p>
-        <button onClick={handleSubmitAnother} className="btn-primary">
-          Submit Another
-        </button>
+        <button onClick={handleSubmitAnother} className="btn-primary">Submit Another</button>
       </div>
     );
   }
@@ -162,9 +215,7 @@ export default function SubmitPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
       <div className="section-header mb-8">
-        <h1 className="text-3xl font-bold" style={{ color: "var(--navy)" }}>
-          Submit Content
-        </h1>
+        <h1 className="text-3xl font-bold" style={{ color: "var(--navy)" }}>Submit Content</h1>
         <p style={{ color: "var(--muted)" }}>
           Submitting as <span className="font-semibold">{session.user?.name}</span>
         </p>
@@ -172,6 +223,7 @@ export default function SubmitPage() {
 
       <div className="card p-8">
         <form onSubmit={handleSubmit}>
+
           {/* Type selector */}
           <div className="form-group">
             <label>Content Type</label>
@@ -189,6 +241,138 @@ export default function SubmitPage() {
               ))}
             </div>
           </div>
+
+          {/* ── Document import ───────────────────────────────────────── */}
+          <div className="form-group">
+            <label>
+              Import from Document{" "}
+              <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional)</span>
+            </label>
+            <p className="text-xs mb-3" style={{ color: "var(--muted)" }}>
+              Upload a Word document (.docx) or PDF and the content will be automatically
+              extracted into the fields below. You can still edit everything after import.
+            </p>
+
+            {docExtracted ? (
+              /* Success state */
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  padding: "0.85rem 1rem",
+                  background: "#f0fdf4",
+                  border: "1px solid #86efac",
+                  borderRadius: "0.75rem",
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className="text-sm font-semibold" style={{ color: "#166534" }}>
+                    Content extracted successfully
+                  </p>
+                  <p className="text-xs truncate" style={{ color: "#16a34a" }}>
+                    {docExtracted}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={clearDocument}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#16a34a",
+                    fontSize: "0.78rem",
+                    fontWeight: 700,
+                    padding: "0.2rem 0.5rem",
+                    borderRadius: "0.25rem",
+                    flexShrink: 0,
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+            ) : docExtracting ? (
+              /* Extracting state */
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  padding: "0.85rem 1rem",
+                  background: "#f0f4ff",
+                  border: "1px solid #c7d2fe",
+                  borderRadius: "0.75rem",
+                }}
+              >
+                <svg
+                  width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="var(--navy)" strokeWidth="2" strokeLinecap="round"
+                  style={{ animation: "spin 1s linear infinite", flexShrink: 0 }}
+                >
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+                <p className="text-sm font-medium" style={{ color: "var(--navy)" }}>
+                  Extracting content from document…
+                </p>
+              </div>
+            ) : (
+              /* Upload button */
+              <button
+                type="button"
+                onClick={() => docInputRef.current?.click()}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.75rem",
+                  padding: "1rem 1.5rem",
+                  background: "#fafafa",
+                  border: "2px dashed var(--border)",
+                  borderRadius: "0.75rem",
+                  cursor: "pointer",
+                  transition: "border-color 0.2s, background 0.2s",
+                  color: "var(--navy)",
+                  fontWeight: 600,
+                  fontSize: "0.9rem",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "var(--gold)";
+                  e.currentTarget.style.background = "#fef9f0";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "var(--border)";
+                  e.currentTarget.style.background = "#fafafa";
+                }}
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                  <polyline points="10 9 9 9 8 9" />
+                </svg>
+                Attach Document (.docx or .pdf)
+              </button>
+            )}
+
+            <input
+              ref={docInputRef}
+              type="file"
+              accept=".docx,.pdf"
+              onChange={handleDocumentChange}
+              style={{ display: "none" }}
+            />
+
+            {docError && (
+              <p className="text-sm mt-2" style={{ color: "#991b1b" }}>{docError}</p>
+            )}
+          </div>
+          {/* ─────────────────────────────────────────────────────────── */}
 
           {/* Title */}
           <div className="form-group">
@@ -237,7 +421,7 @@ export default function SubmitPage() {
               name="content"
               value={form.content}
               onChange={handleChange}
-              placeholder="Write your full content here."
+              placeholder="Write your full content here, or attach a document above to auto-fill."
               rows={10}
               required
             />
@@ -278,7 +462,7 @@ export default function SubmitPage() {
             </div>
           )}
 
-          {/* Featured Image upload */}
+          {/* Featured Image */}
           <div className="form-group">
             <label>
               Featured Image{" "}
@@ -288,17 +472,9 @@ export default function SubmitPage() {
             {imagePreview ? (
               <div className="relative rounded-xl overflow-hidden border" style={{ borderColor: "var(--border)" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="w-full object-cover"
-                  style={{ maxHeight: "240px" }}
-                />
+                <img src={imagePreview} alt="Preview" className="w-full object-cover" style={{ maxHeight: "240px" }} />
                 {imageUploading && (
-                  <div
-                    className="absolute inset-0 flex items-center justify-center"
-                    style={{ background: "rgba(0,0,0,0.45)" }}
-                  >
+                  <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.45)" }}>
                     <span className="text-white text-sm font-medium">Uploading…</span>
                   </div>
                 )}
@@ -311,8 +487,7 @@ export default function SubmitPage() {
                     aria-label="Remove image"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
+                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
                   </button>
                 )}
@@ -332,28 +507,14 @@ export default function SubmitPage() {
                   <polyline points="21 15 16 10 5 21" />
                 </svg>
                 <div className="text-center">
-                  <p className="text-sm font-medium" style={{ color: "var(--navy)" }}>
-                    Click to upload an image
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
-                    PNG, JPG, GIF, WebP — max 5MB
-                  </p>
+                  <p className="text-sm font-medium" style={{ color: "var(--navy)" }}>Click to upload an image</p>
+                  <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>PNG, JPG, GIF, WebP — max 5MB</p>
                 </div>
               </button>
             )}
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-              style={{ display: "none" }}
-            />
-
-            {imageError && (
-              <p className="text-sm mt-2" style={{ color: "#991b1b" }}>{imageError}</p>
-            )}
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
+            {imageError && <p className="text-sm mt-2" style={{ color: "#991b1b" }}>{imageError}</p>}
           </div>
 
           {/* Contact info */}
@@ -367,39 +528,18 @@ export default function SubmitPage() {
             </div>
             <div className="form-group">
               <label htmlFor="contactName">Contact Name</label>
-              <input
-                id="contactName"
-                name="contactName"
-                type="text"
-                value={form.contactName}
-                onChange={handleChange}
-                placeholder="Press contact name"
-              />
+              <input id="contactName" name="contactName" type="text" value={form.contactName} onChange={handleChange} placeholder="Press contact name" />
             </div>
             <div className="form-group">
               <label htmlFor="contactEmail">Contact Email</label>
-              <input
-                id="contactEmail"
-                name="contactEmail"
-                type="email"
-                value={form.contactEmail}
-                onChange={handleChange}
-                placeholder="press@organisation.com"
-              />
+              <input id="contactEmail" name="contactEmail" type="email" value={form.contactEmail} onChange={handleChange} placeholder="press@organisation.com" />
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label htmlFor="contactPhone">
                 Contact Phone{" "}
                 <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional)</span>
               </label>
-              <input
-                id="contactPhone"
-                name="contactPhone"
-                type="tel"
-                value={form.contactPhone}
-                onChange={handleChange}
-                placeholder="+353 87 000 0000"
-              />
+              <input id="contactPhone" name="contactPhone" type="tel" value={form.contactPhone} onChange={handleChange} placeholder="+353 87 000 0000" />
             </div>
           </div>
 
@@ -409,21 +549,11 @@ export default function SubmitPage() {
               Website URL{" "}
               <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional)</span>
             </label>
-            <input
-              id="websiteUrl"
-              name="websiteUrl"
-              type="url"
-              value={form.websiteUrl}
-              onChange={handleChange}
-              placeholder="https://www.yourorganisation.com"
-            />
+            <input id="websiteUrl" name="websiteUrl" type="url" value={form.websiteUrl} onChange={handleChange} placeholder="https://www.yourorganisation.com" />
           </div>
 
           {error && (
-            <div
-              className="rounded-lg px-4 py-3 mb-4 text-sm"
-              style={{ background: "#fee2e2", color: "#991b1b" }}
-            >
+            <div className="rounded-lg px-4 py-3 mb-4 text-sm" style={{ background: "#fee2e2", color: "#991b1b" }}>
               {error}
             </div>
           )}
@@ -431,13 +561,17 @@ export default function SubmitPage() {
           <button
             type="submit"
             className="btn-primary w-full text-center"
-            disabled={loading || imageUploading}
-            style={{ opacity: loading || imageUploading ? 0.7 : 1, fontSize: "1rem" }}
+            disabled={loading || imageUploading || docExtracting}
+            style={{ opacity: loading || imageUploading || docExtracting ? 0.7 : 1, fontSize: "1rem" }}
           >
             {loading ? "Submitting…" : "Submit for Review"}
           </button>
         </form>
       </div>
+
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 }
