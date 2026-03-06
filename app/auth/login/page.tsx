@@ -4,7 +4,7 @@ import { Suspense, useRef, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Turnstile } from "@marsidev/react-turnstile";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 
 function LoginForm() {
   const router = useRouter();
@@ -18,7 +18,7 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const turnstileRef = useRef<{ reset: () => void }>(null);
+  const turnstileRef = useRef<TurnstileInstance>(undefined);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
