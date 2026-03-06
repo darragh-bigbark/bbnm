@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const emailVerified = searchParams.get("emailVerified");
@@ -44,7 +44,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-16" style={{ background: "var(--cream)" }}>
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="no-underline">
             <div style={{ fontSize: "2.5rem" }} className="mb-2">🐾</div>
@@ -71,7 +70,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Card */}
         <div className="card p-8">
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -101,10 +99,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div
-                className="rounded-lg px-4 py-3 mb-4 text-sm"
-                style={{ background: "#fee2e2", color: "#991b1b" }}
-              >
+              <div className="rounded-lg px-4 py-3 mb-4 text-sm" style={{ background: "#fee2e2", color: "#991b1b" }}>
                 {error}
               </div>
             )}
@@ -128,5 +123,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
