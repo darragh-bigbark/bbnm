@@ -46,9 +46,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (fileName.endsWith(".pdf")) {
-      const { PDFParse } = await import("pdf-parse");
-      const parser = new PDFParse({ data: buffer });
-      const result = await parser.getText();
+      // Use lib path directly to avoid pdf-parse's test file side-effect on import
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const pdfParse: typeof import("pdf-parse") = require("pdf-parse/lib/pdf-parse.js");
+      const result = await pdfParse(buffer);
       const rawText: string = result.text;
 
       // Convert extracted plain text into HTML paragraphs
@@ -74,9 +75,8 @@ export async function POST(req: NextRequest) {
     );
   } catch (err) {
     console.error("Document extraction error:", err);
-    const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { error: `Extraction failed: ${message}` },
+      { error: "Failed to extract content from the document. Please check the file and try again." },
       { status: 500 }
     );
   }
