@@ -20,10 +20,11 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
 
-  const data: Record<string, string> = {};
+  const data: Record<string, string | boolean> = {};
   if (body.role) data.role = body.role;
   if (body.email) data.email = body.email;
   if (body.password) data.password = await bcrypt.hash(body.password, 12);
+  if (typeof body.approved === "boolean") data.approved = body.approved;
 
   const user = await prisma.user.update({ where: { id }, data });
   return NextResponse.json(user);

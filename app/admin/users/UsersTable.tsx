@@ -10,6 +10,7 @@ type User = {
   organisation: string;
   orgType: string;
   role: string;
+  approved: boolean;
   createdAt: string;
   _count: { posts: number };
   password?: undefined;
@@ -143,7 +144,7 @@ export default function UsersTable({ users }: { users: User[] }) {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ borderBottom: "2px solid var(--border)", background: "#f9fafb" }}>
-                {["Name", "Email", "Organisation", "Org Type", "Role", "Posts", "Joined", "Actions"].map((h) => (
+                {["Name", "Email", "Organisation", "Org Type", "Role", "Status", "Posts", "Joined", "Actions"].map((h) => (
                   <th
                     key={h}
                     className="text-left px-4 py-3 font-semibold text-xs uppercase tracking-wider"
@@ -179,6 +180,19 @@ export default function UsersTable({ users }: { users: User[] }) {
                       {user.role}
                     </span>
                   </td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <span
+                      className="badge"
+                      style={{
+                        fontSize: "0.72rem",
+                        background: user.approved ? "#dcfce7" : "#fef3c7",
+                        color: user.approved ? "#166534" : "#92400e",
+                        border: `1px solid ${user.approved ? "#bbf7d0" : "#fde68a"}`,
+                      }}
+                    >
+                      {user.approved ? "Approved" : "Pending"}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-center font-medium" style={{ color: "var(--navy)" }}>
                     {user._count.posts}
                   </td>
@@ -187,6 +201,25 @@ export default function UsersTable({ users }: { users: User[] }) {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
+                      {!user.approved && (
+                        <button
+                          onClick={async () => {
+                            setLoading(`${user.id}-approve`);
+                            await fetch(`/api/admin/users/${user.id}`, {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ approved: true }),
+                            });
+                            setLoading(null);
+                            router.refresh();
+                          }}
+                          disabled={loading === `${user.id}-approve`}
+                          className="btn-primary"
+                          style={{ padding: "0.3rem 0.75rem", fontSize: "0.78rem", background: "#16a34a" }}
+                        >
+                          Approve
+                        </button>
+                      )}
                       <button
                         onClick={() => openEdit(user)}
                         className="btn-outline"

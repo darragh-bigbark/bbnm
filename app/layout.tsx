@@ -27,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       width={120}
                       height={67}
                       className="object-contain"
+                      unoptimized
                     />
                   </div>
                   <p className="text-sm">The canine industry&apos;s go-to source for news, press releases and events.</p>

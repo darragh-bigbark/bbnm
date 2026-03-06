@@ -89,6 +89,7 @@ export default function Navbar() {
               height={73}
               className="object-contain"
               priority
+              unoptimized
             />
           </Link>
           {/* Mobile hamburger — absolute so it doesn't shift the logo */}

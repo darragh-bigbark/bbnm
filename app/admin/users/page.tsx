@@ -13,6 +13,7 @@ export default async function AdminUsersPage() {
     ...u,
     password: undefined,
     createdAt: u.createdAt.toISOString(),
+    approved: u.approved,
   }));
 
   return (

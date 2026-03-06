@@ -24,6 +24,7 @@ export default function AboutPage() {
             width={220}
             height={123}
             className="object-contain"
+            unoptimized
           />
         </div>
         <div>
