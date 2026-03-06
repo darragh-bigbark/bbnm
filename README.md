@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the app.
+Open [https://bbnm.ie](https://bbnm.ie) to view the live site, or [http://localhost:3000](http://localhost:3000) when running locally.
 
 ## Stack
 

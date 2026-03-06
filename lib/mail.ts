@@ -10,7 +10,7 @@ const mg = mailgun.client({
 
 const DOMAIN = process.env.MAILGUN_DOMAIN!;
 const FROM = process.env.MAILGUN_FROM!;
-const BASE_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
+const BASE_URL = process.env.NEXTAUTH_URL || "https://bbnm.ie";
 
 export async function sendEmail({
   to,

@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   const orgType = searchParams.get("org"); // "charity" | "business" | null (all)
   const type = searchParams.get("type"); // "news" | "press_release" | "event" | null
 
-  const siteUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const siteUrl = process.env.NEXTAUTH_URL || "https://bbnm.ie";
 
   let feedTitle = "Big Bark News & Media";
   let feedDesc = "The latest canine industry news, press releases and events";
