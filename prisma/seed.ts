@@ -1,7 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
+const url = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
+const adapter = new PrismaBetterSqlite3({ url });
+const prisma = new PrismaClient({ adapter } as any);
 
 async function main() {
   const email = process.env.ADMIN_EMAIL || "admin@bigbarknews.com";
