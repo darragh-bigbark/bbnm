@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import RichTextEditor from "@/components/RichTextEditor";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -410,20 +411,10 @@ export default function SubmitPage() {
 
           {/* Content */}
           <div className="form-group">
-            <label htmlFor="content">
-              Full Content *{" "}
-              <span style={{ color: "var(--muted)", fontWeight: 400 }}>
-                (HTML supported: &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;a&gt;)
-              </span>
-            </label>
-            <textarea
-              id="content"
-              name="content"
-              value={form.content}
-              onChange={handleChange}
-              placeholder="Write your full content here, or attach a document above to auto-fill."
-              rows={10}
-              required
+            <label>Full Content *</label>
+            <RichTextEditor
+              content={form.content}
+              onChange={(html) => setForm((prev) => ({ ...prev, content: html }))}
             />
           </div>
 
