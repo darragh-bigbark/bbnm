@@ -4,6 +4,71 @@ import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 
+function ServicesDropdown({ mobile, onClose }: { mobile?: boolean; onClose?: () => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const links = [
+    { href: "/services/news-media", label: "News & Media Services" },
+    { href: "/services/web-app", label: "Web & App Development" },
+    { href: "/services/seo-social", label: "SEO & Social Media" },
+  ];
+
+  if (mobile) {
+    return (
+      <div className="flex flex-col gap-2 pl-3 border-l-2" style={{ borderColor: "var(--gold)" }}>
+        {links.map((l) => (
+          <Link key={l.href} href={l.href} className="hover:text-yellow-300" onClick={onClose}>
+            {l.label}
+          </Link>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1 hover:text-yellow-300 transition-colors bg-transparent border-none text-white cursor-pointer text-sm font-medium"
+      >
+        Services
+        <svg className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div
+          className="absolute top-full left-0 mt-2 rounded-lg shadow-xl overflow-hidden z-50"
+          style={{ background: "#fff", border: "1px solid var(--border)", minWidth: "220px" }}
+        >
+          {links.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="flex items-center px-4 py-3 text-sm font-medium no-underline transition-colors"
+              style={{ color: "var(--navy)" }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#f0f4ff")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              onClick={() => setOpen(false)}
+            >
+              {l.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AboutDropdown({ mobile, onClose }: { mobile?: boolean; onClose?: () => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -225,6 +290,7 @@ export default function Navbar() {
             <Link href="/" className="hover:text-yellow-300 transition-colors">Home</Link>
             <AboutDropdown />
             <ContentDropdown />
+            <ServicesDropdown />
             <Link href="/podcast" className="hover:text-yellow-300 transition-colors">Podcast</Link>
             <Link href="/contact" className="hover:text-yellow-300 transition-colors">Contact</Link>
             <Link href="/rss" className="hover:text-yellow-300 transition-colors">Subscribe</Link>
@@ -269,6 +335,8 @@ export default function Navbar() {
             <AboutDropdown mobile onClose={() => setOpen(false)} />
             <span className="font-semibold text-xs opacity-60 uppercase tracking-wider">Content</span>
             <ContentDropdown mobile onClose={() => setOpen(false)} />
+            <span className="font-semibold text-xs opacity-60 uppercase tracking-wider">Services</span>
+            <ServicesDropdown mobile onClose={() => setOpen(false)} />
             <Link href="/podcast" className="hover:text-yellow-300" onClick={() => setOpen(false)}>Podcast</Link>
             <Link href="/contact" className="hover:text-yellow-300" onClick={() => setOpen(false)}>Contact</Link>
             <Link href="/rss" className="hover:text-yellow-300" onClick={() => setOpen(false)}>Subscribe</Link>

@@ -2,7 +2,7 @@
 import { useState } from "react";
 
 export default function ContactPage() {
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", subject: "", service: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
@@ -12,8 +12,9 @@ export default function ContactPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     // Opens mailto link as a simple contact mechanism
+    const serviceLine = form.service ? `\nService of Interest: ${form.service}` : "";
     const mailto = `mailto:hello@bbnm.ie?subject=${encodeURIComponent(form.subject)}&body=${encodeURIComponent(
-      `Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`
+      `Name: ${form.name}\nEmail: ${form.email}${serviceLine}\n\n${form.message}`
     )}`;
     window.location.href = mailto;
     setSubmitted(true);
@@ -112,11 +113,36 @@ export default function ContactPage() {
                 <select id="subject" name="subject" required value={form.subject} onChange={handleChange}>
                   <option value="">Select a subject…</option>
                   <option value="General Enquiry">General Enquiry</option>
+                  <option value="Services Enquiry">Services Enquiry</option>
                   <option value="Submission Query">Submission Query</option>
                   <option value="Press Enquiry">Press Enquiry</option>
                   <option value="Technical Issue">Technical Issue</option>
                   <option value="Partnership">Partnership</option>
                   <option value="Other">Other</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="service">Service of Interest <span style={{ color: "var(--muted)", fontWeight: 400 }}>(optional)</span></label>
+                <select id="service" name="service" value={form.service} onChange={handleChange}>
+                  <option value="">Not applicable / Not sure</option>
+                  <optgroup label="News & Media">
+                    <option value="News & Media Services">News &amp; Media Services</option>
+                    <option value="Podcast Feature">Podcast Feature</option>
+                    <option value="Press Release Distribution">Press Release Distribution</option>
+                    <option value="Live Event Coverage">Live Event Coverage</option>
+                    <option value="Branded Content">Branded Content Production</option>
+                  </optgroup>
+                  <optgroup label="Web & App Development">
+                    <option value="WordPress Website">WordPress Website</option>
+                    <option value="Custom Next.js Website">Custom Next.js Website</option>
+                    <option value="Mobile App">Mobile App</option>
+                    <option value="Custom WordPress Plugin">Custom WordPress Plugin</option>
+                  </optgroup>
+                  <optgroup label="SEO & Social Media">
+                    <option value="SEO Services">SEO Services</option>
+                    <option value="Social Media Management">Social Media Management</option>
+                    <option value="SEO & Social Media Package">SEO &amp; Social Media Package</option>
+                  </optgroup>
                 </select>
               </div>
               <div className="form-group">
