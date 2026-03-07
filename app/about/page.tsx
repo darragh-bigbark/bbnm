@@ -2,8 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata = {
-  title: "About Us | Big Bark News & Media",
-  description: "Learn about Big Bark News & Media — the canine industry's dedicated news and media platform.",
+  title: "About Us",
+  description: "Learn about Big Bark News & Media — Ireland's dedicated canine news and media platform connecting the dog community.",
+  openGraph: { url: "https://bbnm.ie/about" },
+  alternates: { canonical: "https://bbnm.ie/about" },
 };
 
 export default function AboutPage() {

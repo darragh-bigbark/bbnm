@@ -1,7 +1,19 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import PostCard from "@/components/PostCard";
 import { formatDate } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Canine Events in Ireland",
+  description: "Dog shows, seminars, charity fundraisers, agility competitions and community gatherings from across Ireland's canine world.",
+  openGraph: {
+    title: "Canine Events in Ireland | Big Bark News & Media",
+    description: "Dog shows, seminars, charity fundraisers, agility competitions and community gatherings from across Ireland.",
+    url: "https://bbnm.ie/events",
+  },
+  alternates: { canonical: "https://bbnm.ie/events" },
+};
 
 export const dynamic = "force-dynamic";
 

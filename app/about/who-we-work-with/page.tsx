@@ -1,9 +1,10 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Who We Work With | Big Bark News & Media",
-  description:
-    "Big Bark News & Media partners with charities, rescues, responsible brands, trainers, media outlets and advocates who share our commitment to the canine community.",
+  title: "Who We Work With",
+  description: "Big Bark News & Media partners with charities, rescues, responsible brands, trainers, media outlets and advocates who share our commitment to the canine community.",
+  openGraph: { url: "https://bbnm.ie/about/who-we-work-with" },
+  alternates: { canonical: "https://bbnm.ie/about/who-we-work-with" },
 };
 
 const partners = [

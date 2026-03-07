@@ -1,9 +1,10 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Who We Are | Big Bark News & Media",
-  description:
-    "Big Bark News & Media is Ireland's central canine media hub — a platform dedicated to informing, connecting, and elevating the canine community.",
+  title: "Who We Are",
+  description: "Big Bark News & Media is Ireland's central canine media hub — a platform dedicated to informing, connecting, and elevating the canine community.",
+  openGraph: { url: "https://bbnm.ie/about/who-we-are" },
+  alternates: { canonical: "https://bbnm.ie/about/who-we-are" },
 };
 
 const values = [

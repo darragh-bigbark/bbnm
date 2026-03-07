@@ -1,8 +1,20 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import PostCard from "@/components/PostCard";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Canine Industry News",
+  description: "The latest breaking news and stories from across Ireland's canine industry — dog businesses, charities, rescues and community.",
+  openGraph: {
+    title: "Canine Industry News | Big Bark News & Media",
+    description: "The latest breaking news and stories from across Ireland's canine industry.",
+    url: "https://bbnm.ie/news",
+  },
+  alternates: { canonical: "https://bbnm.ie/news" },
+};
 
 export default async function NewsPage() {
   const posts = await prisma.post.findMany({

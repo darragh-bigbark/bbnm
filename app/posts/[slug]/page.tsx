@@ -13,12 +13,42 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await prisma.post.findUnique({
     where: { slug },
-    select: { title: true, summary: true },
+    select: {
+      title: true,
+      summary: true,
+      imageUrl: true,
+      publishedAt: true,
+      type: true,
+      author: { select: { name: true, organisation: true } },
+    },
   });
   if (!post) return { title: "Not Found" };
+
+  const url = `https://bbnm.ie/posts/${slug}`;
+  const images = post.imageUrl
+    ? [{ url: post.imageUrl, alt: post.title }]
+    : [{ url: "/home-banner.png", width: 1400, height: 735, alt: "Big Bark News & Media" }];
+
   return {
-    title: `${post.title} | Big Bark News & Media`,
-    description: post.summary,
+    title: post.title,
+    description: post.summary ?? undefined,
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description: post.summary ?? undefined,
+      url,
+      images,
+      publishedTime: post.publishedAt?.toISOString(),
+      authors: post.author.name ? [post.author.name] : undefined,
+      section: post.type === "press_release" ? "Press Releases" : post.type === "event" ? "Events" : "News",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.summary ?? undefined,
+      images: [images[0].url],
+    },
+    alternates: { canonical: url },
   };
 }
 

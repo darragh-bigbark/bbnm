@@ -1,10 +1,30 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import LatestStories from "@/components/LatestStories";
 import SubscribeForm from "@/components/SubscribeForm";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Big Bark News & Media — Ireland's Canine News & Media Hub",
+  },
+  description: "Ireland's only dedicated canine news and media platform. Breaking news, press releases, events and more from across the dog industry.",
+  openGraph: {
+    title: "Big Bark News & Media — Ireland's Canine News & Media Hub",
+    description: "Ireland's only dedicated canine news and media platform. Breaking news, press releases, events and more from across the dog industry.",
+    url: "https://bbnm.ie",
+    images: [{ url: "/home-banner.png", width: 1400, height: 735, alt: "Big Bark News & Media" }],
+  },
+  twitter: {
+    title: "Big Bark News & Media — Ireland's Canine News & Media Hub",
+    description: "Ireland's only dedicated canine news and media platform.",
+    images: ["/home-banner.png"],
+  },
+  alternates: { canonical: "https://bbnm.ie" },
+};
 
 const categories = [
   {

@@ -3,8 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 
 export const metadata = {
-  title: "Live News | Big Bark News & Media",
+  title: "Live News",
   description: "Follow live breaking news and rolling coverage from across Ireland's canine community.",
+  openGraph: { url: "https://bbnm.ie/live-news" },
+  alternates: { canonical: "https://bbnm.ie/live-news" },
 };
 
 export const dynamic = "force-dynamic";

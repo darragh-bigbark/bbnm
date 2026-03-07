@@ -1,3 +1,16 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Podcast",
+  description: "The Big Bark News & Media podcast — conversations, interviews and discussions from Ireland's canine community.",
+  openGraph: {
+    title: "Podcast | Big Bark News & Media",
+    description: "Conversations, interviews and discussions from Ireland's canine community.",
+    url: "https://bbnm.ie/podcast",
+  },
+  alternates: { canonical: "https://bbnm.ie/podcast" },
+};
+
 export default function PodcastPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">

@@ -5,8 +5,23 @@ import Navbar from "@/components/Navbar";
 import SessionProvider from "@/components/SessionProvider";
 
 export const metadata: Metadata = {
-  title: "Big Bark News & Media",
-  description: "The leading news and media platform for the canine industry. News, press releases, events and more.",
+  metadataBase: new URL("https://bbnm.ie"),
+  title: {
+    default: "Big Bark News & Media",
+    template: "%s | Big Bark News & Media",
+  },
+  description: "Ireland's only dedicated canine news and media platform. Breaking news, press releases, events and more from across the dog industry.",
+  openGraph: {
+    type: "website",
+    siteName: "Big Bark News & Media",
+    locale: "en_IE",
+    images: [{ url: "/home-banner.png", width: 1400, height: 735, alt: "Big Bark News & Media" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@bigbarknewsandmedia",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

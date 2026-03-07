@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import AdminSidebar from "./AdminSidebar";
