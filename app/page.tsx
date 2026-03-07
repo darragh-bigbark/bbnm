@@ -16,12 +16,12 @@ export const metadata: Metadata = {
     title: "Big Bark News & Media — Ireland's Canine News & Media Hub",
     description: "Ireland's only dedicated canine news and media platform. Breaking news, press releases, events and more from across the dog industry.",
     url: "https://bbnm.ie",
-    images: [{ url: "/home-banner.png", width: 1400, height: 735, alt: "Big Bark News & Media" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Big Bark News & Media" }],
   },
   twitter: {
     title: "Big Bark News & Media — Ireland's Canine News & Media Hub",
     description: "Ireland's only dedicated canine news and media platform.",
-    images: ["/home-banner.png"],
+    images: ["/og-image.png"],
   },
   alternates: { canonical: "https://bbnm.ie" },
 };

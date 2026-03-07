@@ -11,11 +11,23 @@ export const metadata: Metadata = {
     template: "%s | Big Bark News & Media",
   },
   description: "Ireland's only dedicated canine news and media platform. Breaking news, press releases, events and more from across the dog industry.",
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+    other: [
+      { rel: "icon", url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+      { rel: "icon", url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+  },
   openGraph: {
     type: "website",
     siteName: "Big Bark News & Media",
     locale: "en_IE",
-    images: [{ url: "/home-banner.png", width: 1400, height: 735, alt: "Big Bark News & Media" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Big Bark News & Media" }],
   },
   twitter: {
     card: "summary_large_image",
