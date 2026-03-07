@@ -52,9 +52,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       src="/logo-trans.png"
                       alt="Big Bark News & Media"
                       width={120}
-                      height={67}
+                      height={120}
                       className="object-contain"
-                      unoptimized
+                      sizes="120px"
                     />
                   </div>
                   <p className="text-sm">The canine industry&apos;s go-to source for news, press releases and events.</p>

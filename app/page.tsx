@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import LatestStories from "@/components/LatestStories";
 import SubscribeForm from "@/components/SubscribeForm";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: {
@@ -108,10 +108,11 @@ export default async function HomePage() {
           <Image
             src="/home-banner.png"
             alt="Big Bark News & Media — Ireland's Only Dedicated Canine News & Media Agency"
-            width={1400}
-            height={735}
+            width={1536}
+            height={1024}
             className="w-full h-auto block"
             priority
+            sizes="100vw"
           />
         </div>
       </section>

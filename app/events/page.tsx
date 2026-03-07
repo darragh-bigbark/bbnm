@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://bbnm.ie/events" },
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function EventsPage() {
   const posts = await prisma.post.findMany({

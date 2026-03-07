@@ -198,10 +198,10 @@ export default function Navbar() {
               src="/logo-trans.png"
               alt="Big Bark News & Media"
               width={130}
-              height={73}
+              height={130}
               className="object-contain"
               priority
-              unoptimized
+              sizes="130px"
             />
           </Link>
           <button
