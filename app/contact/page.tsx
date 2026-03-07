@@ -4,19 +4,30 @@ import { useState } from "react";
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", service: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const serviceLine = form.service ? `\nService of Interest: ${form.service}` : "";
-    const mailto = `mailto:hello@bbnm.ie?subject=${encodeURIComponent(form.subject)}&body=${encodeURIComponent(
-      `Name: ${form.name}\nEmail: ${form.email}${serviceLine}\n\n${form.message}`
-    )}`;
-    window.location.href = mailto;
-    setSubmitted(true);
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("Failed to send");
+      setSubmitted(true);
+    } catch {
+      setError("Sorry, something went wrong. Please email us directly at hello@bbnm.ie.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -108,11 +119,9 @@ export default function ContactPage() {
                       <polyline points="22,6 12,13 2,6" />
                     </svg>
                   </div>
-                  <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--navy)" }}>Message opened!</h2>
+                  <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--navy)" }}>Message sent!</h2>
                   <p style={{ color: "var(--muted)" }}>
-                    Your email client should have opened with the message pre-filled. If not, email us
-                    directly at{" "}
-                    <a href="mailto:hello@bbnm.ie" style={{ color: "var(--navy)", fontWeight: 700 }}>hello@bbnm.ie</a>.
+                    Thanks for getting in touch. We&apos;ve sent a confirmation to <strong>{form.email}</strong> and will get back to you shortly.
                   </p>
                 </div>
               ) : (
@@ -180,8 +189,11 @@ export default function ContactPage() {
                     <label htmlFor="message">Message</label>
                     <textarea id="message" name="message" required rows={5} value={form.message} onChange={handleChange} placeholder="How can we help?" />
                   </div>
-                  <button type="submit" className="btn-primary w-full" style={{ fontSize: "1rem" }}>
-                    Send Message
+                  {error && (
+                    <p className="text-sm mb-3" style={{ color: "#dc2626" }}>{error}</p>
+                  )}
+                  <button type="submit" className="btn-primary w-full" style={{ fontSize: "1rem" }} disabled={loading}>
+                    {loading ? "Sending…" : "Send Message"}
                   </button>
                 </form>
               )}
